@@ -4,55 +4,61 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NOLA · Know where to go</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20691.82%20891.84%22%3E%3Cpath%20fill%3D%22%23234e70%22%20d%3D%22M691.51%2C758.34c-7.99%2C89.17-169.19%2C147.62-360.07%2C130.53C140.58%2C871.79-7.68%2C785.63.31%2C696.45c4.47-49.88%2C56.87-90.15%2C135.6-112.96%2C2.68-.78%2C2.58-4.63-.14-5.27-61.11-14.46-104.21-45.11-113.8-87.74-18.27-81.21%2C91.9-175.15%2C246.08-209.86%2C9.36-2.11%2C18.67-3.94%2C27.89-5.52%2C2.67-.46%2C3.11-4.08.63-5.18-11.35-5.04-22.71-10.81-33.97-17.33-99.75-57.74-153.48-151.41-120.02-209.2%2C33.45-57.79%2C141.43-57.83%2C241.17-.1%2C99.74%2C57.75%2C153.48%2C151.41%2C120.02%2C209.2-5.53%2C9.57-13.12%2C17.56-22.37%2C23.96-1.87%2C1.29-1.37%2C4.18.81%2C4.83%2C52.73%2C15.76%2C89.34%2C44.67%2C98.1%2C83.55%2C16.44%2C73.09-71.19%2C156.51-201.31%2C197.75-2.8.89-2.38%2C4.97.54%2C5.31%2C181.52%2C20.95%2C319.68%2C104.3%2C311.98%2C190.47Z%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20691.82%20891.84%22%3E%3Cpath%20fill%3D%22%234f7d6c%22%20d%3D%22M691.51%2C758.34c-7.99%2C89.17-169.19%2C147.62-360.07%2C130.53C140.58%2C871.79-7.68%2C785.63.31%2C696.45c4.47-49.88%2C56.87-90.15%2C135.6-112.96%2C2.68-.78%2C2.58-4.63-.14-5.27-61.11-14.46-104.21-45.11-113.8-87.74-18.27-81.21%2C91.9-175.15%2C246.08-209.86%2C9.36-2.11%2C18.67-3.94%2C27.89-5.52%2C2.67-.46%2C3.11-4.08.63-5.18-11.35-5.04-22.71-10.81-33.97-17.33-99.75-57.74-153.48-151.41-120.02-209.2%2C33.45-57.79%2C141.43-57.83%2C241.17-.1%2C99.74%2C57.75%2C153.48%2C151.41%2C120.02%2C209.2-5.53%2C9.57-13.12%2C17.56-22.37%2C23.96-1.87%2C1.29-1.37%2C4.18.81%2C4.83%2C52.73%2C15.76%2C89.34%2C44.67%2C98.1%2C83.55%2C16.44%2C73.09-71.19%2C156.51-201.31%2C197.75-2.8.89-2.38%2C4.97.54%2C5.31%2C181.52%2C20.95%2C319.68%2C104.3%2C311.98%2C190.47Z%22/%3E%3C/svg%3E">
 <!-- Wordmark font. Falls back to the system font offline. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&display=swap">
 <!-- Load data.js fresh every time so edits show up right away (no stale cache). -->
 <script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
 <!-- Map tab: Leaflet (open-source map library). Map tiles need an internet connection. -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <style>
-  /* ---------- Colors. Dark is the default; the header button switches to light. ---------- */
+  /* ---------- Colors: sage greens from the NOLA deck. Dark is the default; the header button switches to light. ---------- */
   /* Change --accent (both themes) to rebrand. --on-accent is text on accent buttons. */
   :root {
     color-scheme: dark;
-    --accent: #8dbbe0;   --on-accent: #0f1a24;   --accent-soft: #1f2d39;
-    --ink: #ecebe6;
-    --muted: #9ba29d;
-    --line: #2d3330;
-    --paper: #121614;
-    --card: #1b201d;
-    --frame: #050706;
-    --quiet: #72c493;    --quiet-bg: #1c3326;
+    --accent: #9cc8b4;   --on-accent: #10201a;   --accent-soft: #23392f;
+    --ink: #eaf1ec;
+    --muted: #9db1a7;
+    --line: #2a3a33;
+    --paper: #131c18;
+    --card: #1b2823;
+    --wash: #24402f;     /* soft sage glow at the top of each screen */
+    --quiet: #74cc96;    --quiet-bg: #1b3526;
     --moderate: #e2b55e; --moderate-bg: #392e17;
     --busy: #ef7f77;     --busy-bg: #3d2220;
-    --closed: #8d948f;   --closed-bg: #272c29;
+    --closed: #8f9a94;   --closed-bg: #26302c;
     --star: #f2c14e;
     --tint: 65%;         /* how strongly activity colors show on icons and labels */
     --hero-dim: .82;     /* darkens photo-style headers so they don't glare */
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --display: Rubik, -apple-system, system-ui, sans-serif;   /* headings and wordmark */
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    /* The deck's look: sage gradient with faint concentric rings. Used behind the phone and on the points card. */
+    --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000' fill='none' stroke='%23fff' stroke-opacity='.22' stroke-width='2'%3E%3Ccircle cx='500' cy='500' r='330'/%3E%3Ccircle cx='500' cy='500' r='400'/%3E%3Ccircle cx='500' cy='500' r='470'/%3E%3C/svg%3E");
+    --brand-bg: radial-gradient(circle at 22% 70%, #4f7d6c, transparent 60%),
+                linear-gradient(120deg, #7fa592, #5f917d 45%, #88ae9d);
   }
   :root[data-theme="light"] {
     color-scheme: light;
-    --accent: #234e70;   --on-accent: #ffffff;   --accent-soft: #e8eef3;
-    --ink: #1d2320;
-    --muted: #6b716d;
-    --line: #e7e3db;
-    --paper: #f7f5f0;
+    --accent: #4f7d6c;   --on-accent: #ffffff;   --accent-soft: #e0ebe5;
+    --ink: #1c2a24;
+    --muted: #5f716a;
+    --line: #d9e4de;
+    --paper: #f1f6f3;
     --card: #ffffff;
-    --frame: #e4e1da;
-    --quiet: #2e7d4f;    --quiet-bg: #e5f1e9;
+    --wash: #d3e5da;
+    --quiet: #2a8a50;    --quiet-bg: #e1f2e7;
     --moderate: #946412; --moderate-bg: #f7eedb;
     --busy: #b03a3a;     --busy-bg: #f6e2e0;
-    --closed: #8b908c;   --closed-bg: #eeece8;
+    --closed: #86928c;   --closed-bg: #e9efeb;
     --star: #d4961a;
     --tint: 100%;
     --hero-dim: 1;
-    --shadow: 0 1px 2px rgba(29,35,32,.04), 0 4px 14px rgba(29,35,32,.05);
+    --shadow: 0 1px 2px rgba(28,42,36,.05), 0 4px 14px rgba(28,42,36,.06);
+    --brand-bg: radial-gradient(circle at 22% 70%, #5f917d, transparent 60%),
+                linear-gradient(120deg, #a1c1b0, #88ae9d 45%, #bbd2c0);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
@@ -71,12 +77,43 @@
   /* ---------- Phone frame: full screen on phones, framed on laptops ---------- */
   #app {
     position: relative; display: flex; flex-direction: column;
-    height: 100dvh; overflow: clip; background: var(--paper);  /* clip: never scrolls sideways */
+    height: 100dvh; overflow: clip;  /* clip: never scrolls sideways */
+    background: linear-gradient(180deg, var(--wash), var(--paper) 340px);
   }
   @media (min-width: 500px) {
-    body { background: var(--frame); display: grid; place-items: center; }
+    body { background: var(--rings) center / min(1400px, 150vw) no-repeat, var(--brand-bg); display: grid; place-items: center; }
     #app { width: 390px; height: min(844px, calc(100vh - 40px));
-           border-radius: 40px; box-shadow: 0 30px 80px rgba(29,35,32,.22), 0 0 0 10px #1d2320; }
+           border-radius: 40px; box-shadow: 0 30px 80px rgba(20,40,32,.35), 0 0 0 10px #16211c; }
+  }
+
+  /* ---------- Welcome page (shown on open and after Reset demo) ---------- */
+  #welcome { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center;
+             justify-content: center; text-align: center; color: #fff; overflow: hidden; touch-action: none; user-select: none;
+             background: var(--brand-bg); transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .55s; }
+  #welcome[hidden] { display: none; }
+  #welcome.dragging { transition: none; }
+  #welcome.gone { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+  .w-ring { position: absolute; top: 50%; left: 50%; width: 520px; height: 520px; margin: -300px 0 0 -260px;
+            border-radius: 50%; border: 1.5px solid rgba(255,255,255,.35); animation: w-ripple 4.5s ease-out infinite both; }
+  .w-ring:nth-child(2) { animation-delay: 1.5s; }
+  .w-ring:nth-child(3) { animation-delay: 3s; }
+  .w-logo { width: 92px; height: 118px; fill: #fff; margin-bottom: 26px; filter: drop-shadow(0 8px 24px rgba(20,50,40,.25));
+            animation: w-rise 1s cubic-bezier(.2,.8,.2,1) both; }
+  .w-hello { font-size: 17px; font-weight: 500; opacity: .9; animation: w-rise .9s .35s cubic-bezier(.2,.8,.2,1) both; }
+  .w-name { font-family: var(--display); font-size: 68px; font-weight: 700; letter-spacing: .05em; line-height: 1.05;
+            animation: w-rise .9s .5s cubic-bezier(.2,.8,.2,1) both; }
+  .w-tag { font-size: 21px; opacity: .92; animation: w-rise .9s .65s cubic-bezier(.2,.8,.2,1) both; }
+  .w-swipe { position: absolute; bottom: calc(48px + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 6px;
+             border: 0; background: none; color: #fff; font-size: 15px; font-weight: 600; padding: 12px 24px;
+             animation: w-fade .8s 1.3s both; }
+  .w-swipe .i { width: 26px; height: 26px; animation: w-nudge 1.8s 2s ease-in-out infinite; }
+  @keyframes w-rise { from { opacity: 0; transform: translateY(26px) scale(.97); } }
+  @keyframes w-fade { from { opacity: 0; } }
+  @keyframes w-nudge { 0%, 100% { transform: none; } 50% { transform: translateY(-8px); } }
+  @keyframes w-ripple { from { transform: scale(.35); opacity: .9; } to { transform: scale(1.5); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    #welcome, #welcome * { animation: none !important; transition: none !important; }
+    .w-ring { display: none; }
   }
 
   /* ---------- Header ---------- */
@@ -93,7 +130,7 @@
            font-size: 13px; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 
   main { flex: 1; overflow-y: auto; padding: 12px 20px 28px; }
-  h1 { font-family: var(--serif); font-weight: 600; font-size: 30px; line-height: 1.15;
+  h1 { font-family: var(--display); font-weight: 600; font-size: 29px; line-height: 1.15;
        letter-spacing: -.01em; margin: 6px 0 6px; }
   h2 { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
        color: var(--muted); margin: 26px 0 12px; }
@@ -130,7 +167,7 @@
               margin-bottom: 12px; border-radius: 18px; border: 1.5px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
   .goal-opt .tile { width: 52px; height: 52px; border-radius: 14px; }
   .goal-opt .tile .i { width: 26px; height: 26px; }
-  .goal-opt .title { font-family: var(--serif); font-size: 21px; font-weight: 600; margin-bottom: 4px; }
+  .goal-opt .title { font-family: var(--display); font-size: 21px; font-weight: 600; margin-bottom: 4px; }
   .goal-opt p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
   .goal-opt { position: relative; padding-right: 52px; }
   .goal-opt .check { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; border-radius: 50%;
@@ -252,12 +289,12 @@
   .pin { position: relative; }
 
   /* ---------- Update tab ---------- */
-  .points { padding: 18px; border-radius: 18px; margin-bottom: 8px; color: var(--on-accent);
-            background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #000)); }
-  .points .big { font-family: var(--serif); font-size: 40px; font-weight: 600; line-height: 1; }
+  .points { padding: 18px; border-radius: 18px; margin-bottom: 8px; color: #fff;
+            background: var(--rings) 130% 40% / 360px no-repeat, var(--brand-bg); }
+  .points .big { font-family: var(--display); font-size: 40px; font-weight: 600; line-height: 1; }
   .points .label { font-size: 13px; opacity: .8; }
-  .bar-track { height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--on-accent) 20%, transparent); margin: 14px 0 8px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 99px; background: var(--on-accent); }
+  .bar-track { height: 8px; border-radius: 99px; background: rgba(255,255,255,.25); margin: 14px 0 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; background: #fff; }
   .reward { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 0;
             border: 0; border-bottom: 1px solid var(--line); background: none; font-size: 14px; }
   .reward:last-child { border-bottom: 0; }
@@ -322,7 +359,7 @@
   .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 10px; }
   .close { position: absolute; top: 16px; right: 16px; z-index: 1; border: 0; width: 36px; height: 36px; border-radius: 50%;
            background: color-mix(in srgb, var(--card) 94%, transparent); display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-  .sheet-title { font-family: var(--serif); font-weight: 600; font-size: 26px; margin: 0; text-transform: none;
+  .sheet-title { font-family: var(--display); font-weight: 600; font-size: 26px; margin: 0; text-transform: none;
                  letter-spacing: -.01em; color: var(--ink); }
   .chart { display: flex; align-items: flex-end; gap: 4px; height: 110px; margin-top: 22px; }
   .bar { flex: 1; border-radius: 4px 4px 0 0; min-height: 3px; position: relative; opacity: .85; }
@@ -348,6 +385,7 @@
 </head>
 <body>
 <div id="app">
+  <section id="welcome" hidden aria-label="Welcome"></section>
   <header>
     <svg class="logo" viewBox="0 0 691.82 891.84" aria-hidden="true"><path d="M691.51,758.34c-7.99,89.17-169.19,147.62-360.07,130.53C140.58,871.79-7.68,785.63.31,696.45c4.47-49.88,56.87-90.15,135.6-112.96,2.68-.78,2.58-4.63-.14-5.27-61.11-14.46-104.21-45.11-113.8-87.74-18.27-81.21,91.9-175.15,246.08-209.86,9.36-2.11,18.67-3.94,27.89-5.52,2.67-.46,3.11-4.08.63-5.18-11.35-5.04-22.71-10.81-33.97-17.33-99.75-57.74-153.48-151.41-120.02-209.2,33.45-57.79,141.43-57.83,241.17-.1,99.74,57.75,153.48,151.41,120.02,209.2-5.53,9.57-13.12,17.56-22.37,23.96-1.87,1.29-1.37,4.18.81,4.83,52.73,15.76,89.34,44.67,98.1,83.55,16.44,73.09-71.19,156.51-201.31,197.75-2.8.89-2.38,4.97.54,5.31,181.52,20.95,319.68,104.3,311.98,190.47Z"/></svg>
     <span class="brand"><b id="brand"></b><small id="tagline"></small></span>
@@ -384,6 +422,7 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "chevron-up": "<path d=\"m18 15-6-6-6 6\" />",
   "megaphone": "<path d=\"m3 11 18-5v12L3 14v-3z\" /> <path d=\"M11.6 16.8a3 3 0 1 1-5.8-1.6\" />",
   "gift": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />",
   "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />",
@@ -1029,7 +1068,8 @@ document.addEventListener("click", (e) => {
     case "locate": map?.setView([D.you.lat, D.you.lng], 13); break;
     case "deal": toast(`Deal saved: ${D.businesses[id].deal}`); break;
     case "tab": goTab(id); break;
-    case "reset": closeSheet(); S = freshState(); map?.setView([D.you.lat, D.you.lng], 13, { animate: false }); render(); toast("Demo reset. Ready for the next person."); break;
+    case "welcome": hideWelcome(); break;
+    case "reset": closeSheet(); showWelcome(); S = freshState(); map?.setView([D.you.lat, D.you.lng], 13, { animate: false }); render(); break;
     case "detail": openDetail(id); break;
     case "closesheet": e.preventDefault(); closeSheet(); break;
     case "directions": toast("This would open Maps (not in the prototype)"); break;
@@ -1071,6 +1111,45 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// ---------- Welcome page: swipe (or tap) to get started ----------
+function showWelcome() {
+  const w = $("#welcome");
+  w.innerHTML = `
+    <span class="w-ring"></span><span class="w-ring"></span><span class="w-ring"></span>
+    <svg class="w-logo" viewBox="0 0 691.82 891.84" aria-hidden="true"><path d="M691.51,758.34c-7.99,89.17-169.19,147.62-360.07,130.53C140.58,871.79-7.68,785.63.31,696.45c4.47-49.88,56.87-90.15,135.6-112.96,2.68-.78,2.58-4.63-.14-5.27-61.11-14.46-104.21-45.11-113.8-87.74-18.27-81.21,91.9-175.15,246.08-209.86,9.36-2.11,18.67-3.94,27.89-5.52,2.67-.46,3.11-4.08.63-5.18-11.35-5.04-22.71-10.81-33.97-17.33-99.75-57.74-153.48-151.41-120.02-209.2,33.45-57.79,141.43-57.83,241.17-.1,99.74,57.75,153.48,151.41,120.02,209.2-5.53,9.57-13.12,17.56-22.37,23.96-1.87,1.29-1.37,4.18.81,4.83,52.73,15.76,89.34,44.67,98.1,83.55,16.44,73.09-71.19,156.51-201.31,197.75-2.8.89-2.38,4.97.54,5.31,181.52,20.95,319.68,104.3,311.98,190.47Z"/></svg>
+    <div class="w-hello">Welcome to</div>
+    <div class="w-name">${esc(D.appName)}</div>
+    <div class="w-tag">${esc(D.tagline)}</div>
+    <button class="w-swipe" data-action="welcome">${icon("chevron-up")}Swipe to get started</button>`;
+  w.classList.remove("gone", "dragging");
+  w.style.transform = "";
+  w.hidden = false;
+}
+function hideWelcome() {
+  const w = $("#welcome");
+  w.classList.remove("dragging");
+  w.style.transform = "";
+  w.classList.add("gone");
+  setTimeout(() => { if (w.classList.contains("gone")) w.hidden = true; }, 550);
+}
+// The page follows your finger upward; let go past 60px (or swipe sideways) to continue.
+(() => {
+  const w = $("#welcome");
+  let y0 = null, x0 = 0, dy = 0, dx = 0;
+  w.onpointerdown = (e) => { y0 = e.clientY; x0 = e.clientX; dy = dx = 0; w.classList.add("dragging"); };
+  w.onpointermove = (e) => {
+    if (y0 === null) return;
+    dy = e.clientY - y0; dx = e.clientX - x0;
+    w.style.transform = `translateY(${Math.min(0, dy)}px)`;
+  };
+  w.onpointerup = w.onpointercancel = () => {
+    if (y0 === null) return;
+    y0 = null;
+    if (dy < -60 || Math.abs(dx) > 80) hideWelcome();
+    else { w.classList.remove("dragging"); w.style.transform = ""; }
+  };
+})();
+
 // ---------- Theme: dark by default, header button toggles light ----------
 function setThemeButton() {
   const light = document.documentElement.dataset.theme === "light";
@@ -1085,6 +1164,7 @@ $(".locate").innerHTML = icon("locate-fixed");
 setThemeButton();
 S = freshState();
 render();
+showWelcome();
 </script>
 </body>
 </html>

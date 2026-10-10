@@ -6,7 +6,7 @@
 window.DATA = {
   // Name and tagline shown in the header.
   appName: "NOLA",
-  tagline: "Know where to go",
+  tagline: "know where to go",
 
   // The hour the demo pretends it is (0-23). null = use the phone's real clock.
   // Tip: set 15 for an afternoon demo so busyness looks interesting.
