@@ -572,8 +572,7 @@ function renderIntro() {
   S.introShown = true;  // animate only the first time, not on every tap
   return `
     <div class="${enter}">
-      <h1>What do you like to do?</h1>
-      <p class="sub" style="--n:2">Pick as many as you like. We'll find spots near you and the best time to go.</p>
+      <h1 style="margin-bottom:18px">What's your vibe?</h1>
     </div>
     <div class="grid ${enter}">
       ${D.activities.map((a, i) => `
