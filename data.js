@@ -4,28 +4,28 @@
 // ============================================================
 
 window.DATA = {
-  // Working name and logo letter shown in the header and intro.
+  // Working name shown in the header.
   appName: "[APP NAME]",
-  logoLetter: "A",
 
   // The hour the demo pretends it is (0-23). null = use the phone's real clock.
   // Tip: set 15 for an afternoon demo so busyness looks interesting.
   demoHour: null,
 
   // ---- Activity types (the intro chips). id is used everywhere else. ----
+  // icon = a name from the ICONS list in index.html. color = card and icon tint.
   activities: [
-    { id: "ski",    name: "Skiing & snowboarding",   icon: "🎿" },
-    { id: "hike",   name: "Hiking",                  icon: "🥾" },
-    { id: "climb",  name: "Climbing",                icon: "🧗" },
-    { id: "skate",  name: "Skating",                 icon: "⛸️" },
-    { id: "bike",   name: "Biking",                  icon: "🚴" },
-    { id: "water",  name: "Water & lakes",           icon: "🛶" },
-    { id: "parks",  name: "Amusement & trampoline",  icon: "🎢" },
-    { id: "arcade", name: "Laser tag & arcades",     icon: "🕹️" },
-    { id: "bowl",   name: "Bowling & mini golf",     icon: "🎳" },
-    { id: "sports", name: "Pickup sports",           icon: "🏀" },
-    { id: "events", name: "Concerts & events",       icon: "🎤" },
-    { id: "museum", name: "Museums & zoos",          icon: "🦒" },
+    { id: "ski",    name: "Skiing & snowboarding",   icon: "mountain-snow",       color: "#4f74a0" },
+    { id: "hike",   name: "Hiking",                  icon: "footprints",          color: "#5f8455" },
+    { id: "climb",  name: "Climbing",                icon: "mountain",            color: "#a8714a" },
+    { id: "skate",  name: "Skating",                 icon: "snowflake",           color: "#4f93a8" },
+    { id: "bike",   name: "Biking",                  icon: "bike",                color: "#7d8c43" },
+    { id: "water",  name: "Water & lakes",           icon: "sailboat",            color: "#357690" },
+    { id: "parks",  name: "Amusement & trampoline",  icon: "ferris-wheel",        color: "#98577f" },
+    { id: "arcade", name: "Laser tag & arcades",     icon: "gamepad-2",           color: "#6656a0" },
+    { id: "bowl",   name: "Bowling & mini golf",     icon: "flag-triangle-right", color: "#a85754" },
+    { id: "sports", name: "Pickup sports",           icon: "volleyball",          color: "#b77f34" },
+    { id: "events", name: "Concerts & events",       icon: "music",               color: "#85506f" },
+    { id: "museum", name: "Museums & zoos",          icon: "landmark",            color: "#8c7849" },
   ],
 
   // ---- Busyness profiles: 15 numbers = 8 AM through 10 PM (0-100). ----
