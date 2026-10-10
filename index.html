@@ -166,18 +166,7 @@
            background: linear-gradient(transparent, var(--paper) 35%); }
 
   /* ---------- Onboarding goal question ---------- */
-  .goal-opt { display: flex; gap: 16px; align-items: flex-start; width: 100%; text-align: left; padding: 20px;
-              margin-bottom: 12px; border-radius: 18px; border: 1.5px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
-  .goal-opt .tile { width: 52px; height: 52px; border-radius: 14px; }
-  .goal-opt .tile .i { width: 26px; height: 26px; }
-  .goal-opt .title { font-family: var(--display); font-size: 21px; font-weight: 600; margin-bottom: 4px; }
-  .goal-opt p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
-  .goal-opt { position: relative; padding-right: 52px; }
-  .goal-opt .check { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; border-radius: 50%;
-                     display: grid; place-items: center; border: 1.5px solid var(--line); color: transparent; }
-  .goal-opt .check .i { width: 14px; height: 14px; stroke-width: 2.5; }
-  .goal-opt[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .goal-opt[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .grid.goals { grid-template-columns: 1fr; }
   .back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted);
           padding: 6px 0; margin: 0 0 6px; font-size: 14px; }
   .mode { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; margin: -6px 0 6px;
@@ -245,7 +234,7 @@
   .heart[aria-pressed="true"] .i { fill: currentColor; }
 
   /* ---------- Community ---------- */
-  .head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
   .filters { display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px 16px; padding: 2px 20px 6px; }
   .fchip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 14px;
            border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-weight: 550; font-size: 14px; }
@@ -558,7 +547,7 @@ function bestTime(p) {
 // Off-peak deals: a discount during a place's quiet hours.
 const hourRange = (a, b) => ampm(a) === ampm(b) ? `${h12(a)}–${h12(b)} ${ampm(b)}` : `${h12(a)} ${ampm(a)}–${h12(b)} ${ampm(b)}`;
 const dealOn = (p) => p.deal && HOUR >= p.deal.start && HOUR < p.deal.end;
-const dealWhen = (p) => dealOn(p) ? `On now until ${h12(p.deal.end)} ${ampm(p.deal.end)}` : `Today ${hourRange(p.deal.start, p.deal.end)}`;
+const dealWhen = (p) => dealOn(p) ? `Now–${h12(p.deal.end)} ${ampm(p.deal.end)}` : hourRange(p.deal.start, p.deal.end);
 const dealLine = (p) => p.deal ? `<div class="deal-line">${icon("tag")} ${esc(p.deal.text)} · ${dealWhen(p)}</div>` : "";
 // Deals happening now come first, then the rest by start time.
 const byDeal = (a, b) => (dealOn(b) - dealOn(a)) || a.deal.start - b.deal.start;
@@ -582,34 +571,27 @@ function renderIntro() {
     </div>
     <div class="stick">
       <button class="btn" data-action="start" ${n ? "" : "disabled"}>
-        ${n ? `Continue with ${n} ${n === 1 ? "activity" : "activities"}` : "Pick at least one"}
+        ${n ? "Continue" : "Pick at least one"}
       </button>
     </div>`;
 }
 
 // Onboarding step 2: what are you looking for? Pick any. Tailors Home and the Map.
 const GOALS = {
-  quiet:  { icon: "leaf",    color: "#2e7d4f", title: "Avoid the crowds",      label: "Avoiding crowds",
-            desc: "Show me quiet spots and the best time to go so I skip the lines." },
-  deals:  { icon: "tag",     color: "#b77f34", title: "Get off-peak deals",    label: "Getting deals",
-            desc: "Show me discounts for going when it's quiet." },
-  new:    { icon: "compass", color: "#98577f", title: "Find new things to do", label: "Trying new things",
-            desc: "Suggest activities I haven't tried yet, from climbing gyms to concerts." },
-  social: { icon: "users",   color: "#234e70", title: "Find my people",        label: "Finding people",
-            desc: "Show me groups heading out so I can meet people who like what I like." },
+  quiet:  { icon: "leaf",    color: "#2e7d4f", title: "Avoid crowds" },
+  deals:  { icon: "tag",     color: "#b77f34", title: "Off-peak deals" },
+  new:    { icon: "compass", color: "#98577f", title: "New things" },
+  social: { icon: "users",   color: "#4f93a8", title: "Find my people" },
 };
 function renderGoal() {
   const n = S.goals.size;
   return `
     <button class="back" data-action="back">${icon("chevron-left")} Back</button>
-    <h1>What are you looking for?</h1>
-    <p class="sub">Pick any that fit. We'll set up the app around them, and you can change them anytime.</p>
-    ${Object.entries(GOALS).map(([id, g]) => `
-      <button class="goal-opt" data-action="goal" data-id="${id}" aria-pressed="${S.goals.has(id)}">
-        <span class="tile" style="--c:${g.color}">${icon(g.icon)}</span>
-        <span><div class="title">${g.title}</div><p>${g.desc}</p></span>
-        <span class="check">${icon("check")}</span>
-      </button>`).join("")}
+    <h1 style="margin-bottom:18px">What are you after?</h1>
+    <div class="grid goals">
+      ${Object.entries(GOALS).map(([id, g]) => `
+        <button class="chip" data-action="goal" data-id="${id}" aria-pressed="${S.goals.has(id)}" style="--c:${g.color}">${icon(g.icon)}${g.title}</button>`).join("")}
+    </div>
     <div class="stick">
       <button class="btn" data-action="goaldone" ${n ? "" : "disabled"}>${n ? "Continue" : "Pick at least one"}</button>
     </div>`;
@@ -631,18 +613,19 @@ function renderHome() {
   return `
     <h1>${greet}</h1>
     <p class="sub">${[
-      (g.has("quiet") || !g.size) && `${quiet} of your ${picks.length} spots ${quiet === 1 ? "is" : "are"} quiet right now.`,
-      social && (mine.length ? `${mine.length} group${mine.length === 1 ? " is" : "s are"} heading out for your activities this week.` : "No groups for your activities yet, but here are some popular ones."),
-      deals && `${dealPlaces.filter(dealOn).length || "No"} off-peak deal${dealPlaces.filter(dealOn).length === 1 ? " is" : "s are"} on right now.`,
-      fresh && newIdeas.length && `${newIdeas.length} new things to try nearby.`,
-    ].filter(Boolean).join(" ")}</p>
-    <button class="mode" data-action="editgoals">${icon("pencil")} ${[...g].map((id) => GOALS[id].label).join(" · ") || "Set what you're looking for"} · Edit</button>
+      (g.has("quiet") || !g.size) && `${quiet} quiet now`,
+      deals && `${dealPlaces.filter(dealOn).length} deals on`,
+      social && `${mine.length} groups this week`,
+      fresh && newIdeas.length && `${newIdeas.length} new ideas`,
+    ].filter(Boolean).join(" · ")}</p>
+    <button class="mode" data-action="editgoals" aria-label="Edit what you're after: ${[...g].map((id) => GOALS[id].title).join(", ")}">
+      ${[...g].map((id) => icon(GOALS[id].icon)).join("")}${icon("pencil")}</button>
     ${social ? `
-      <h2>Groups for you</h2>
+      <h2>Groups</h2>
       ${(mine.length ? mine : S.groups).slice(0, 3).map(groupCard).join("")}
-      <button class="btn ghost" data-action="tab" data-id="community">See all groups</button>` : ""}
+      <button class="btn ghost" data-action="tab" data-id="community">All groups</button>` : ""}
     ${deals ? `
-      <h2>Off-peak deals</h2>
+      <h2>Deals</h2>
       <div class="feat-row">${dealPlaces.map(dealCard).join("")}</div>` : ""}
     ${fresh && newIdeas.length ? `
       <h2>New for you</h2>
@@ -653,9 +636,9 @@ function renderHome() {
             <div class="body"><div class="eyebrow" ${tint(p)}>${act(p.activity).name}</div><div class="title">${esc(p.name)}</div>${badge(busyNow(p))}</div>
           </button>`).join("")}
       </div>
-      <button class="btn ghost" data-action="tab" data-id="discover" style="margin-top:10px">Explore more ideas</button>` : ""}
+      <button class="btn ghost" data-action="tab" data-id="discover" style="margin-top:10px">More ideas</button>` : ""}
     ${saved.length ? `
-      <h2>Saved to try</h2>
+      <h2>Saved</h2>
       <div class="saved-row">
         ${saved.map((p) => `
           <button class="mini" data-action="detail" data-id="${p.id}">
@@ -663,8 +646,8 @@ function renderHome() {
             <div class="body"><div class="title">${esc(p.name)}</div>${badge(busyNow(p))}</div>
           </button>`).join("")}
       </div>` : ""}
-    ${favs.length ? `<h2>Your favorites</h2>${favs.map(placeCard).join("")}` : ""}
-    <h2>Top picks right now</h2>
+    ${favs.length ? `<h2>Favorites</h2>${favs.map(placeCard).join("")}` : ""}
+    <h2>Top picks</h2>
     ${picks.filter((p) => !S.favs.includes(p.id)).map(placeCard).join("")}`;
 }
 
@@ -685,11 +668,10 @@ const placeCard = (p) => `
         ${badge(busyNow(p))}
       </div>
       <div class="facts">
-        <div>${icon("cloud-sun")} ${esc(p.conditions)}</div>
-        <div>${icon("ticket")} ${esc(p.price)}</div>
-        <div class="best">${icon("clock")} Best time today: ${bestTime(p)}</div>
+        <div>${icon("cloud-sun")} ${esc(p.conditions)} · ${esc(p.price)}</div>
+        <div class="best">${icon("clock")} Best ${bestTime(p)}</div>
         ${dealLine(p)}
-        ${S.goals.has("social") && groupsAt(p) ? `<div>${icon("users")} ${groupsAt(p)} group${groupsAt(p) === 1 ? "" : "s"} going</div>` : ""}
+        ${S.goals.has("social") && groupsAt(p) ? `<div>${icon("users")} ${groupsAt(p)} group${groupsAt(p) === 1 ? "" : "s"}</div>` : ""}
       </div>
     </button>
     ${starBtn(p)}
@@ -705,9 +687,8 @@ function ideaCard(p, cls) {
         <div class="body">
           <div class="eyebrow" ${tint(p)}>${act(p.activity).name}</div>
           <div class="title">${esc(p.name)}</div>
-          <div class="meta">${esc(p.town)} · ${p.miles} mi · ${esc(p.price)}</div>
-          <p class="pitch">${esc(p.pitch)}</p>
-          <div class="row" style="gap:8px;flex-wrap:wrap">${badge(busyNow(p))}${p.deal ? `<span class="deal-chip">${icon("tag")} ${esc(p.deal.text)}</span>` : ""}</div>
+          <div class="meta">${p.miles} mi · ${esc(p.price)}</div>
+          <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px">${badge(busyNow(p))}${p.deal ? `<span class="deal-chip">${icon("tag")} ${esc(p.deal.text)}</span>` : ""}</div>
         </div>
       </button>
       <button class="heart" data-action="save" data-id="${p.id}" aria-pressed="${saved}"
@@ -726,7 +707,7 @@ const dealCard = (p) => `
         <div class="title">${esc(p.name)}</div>
         <div class="deal-text">${esc(p.deal.text)}</div>
         <div class="meta">${dealWhen(p)} · ${p.miles} mi</div>
-        <div class="row" style="margin-top:10px;gap:8px">${badge(busyNow(p))}${dealOn(p) ? `<span class="deal-chip">${icon("tag")} Deal on now</span>` : ""}</div>
+        <div class="row" style="margin-top:10px;gap:8px">${badge(busyNow(p))}</div>
       </div>
     </button>
   </div>`;
@@ -745,14 +726,13 @@ function renderDiscover() {
   const outside = rest.filter((p) => !S.interests.has(p.activity));
   const recs = (outside.length ? outside : rest).sort(byQuiet);
   return `
-    <h1>Find new things to do</h1>
-    <p class="sub">Deals for going when it's quiet, and ideas you haven't tried.</p>
+    <h1 style="margin-bottom:16px">Find new things</h1>
     ${segHTML()}
-    <h2>Sponsored deals</h2>
+    <h2>Deals</h2>
     <div class="feat-row">${sponsored.map(dealCard).join("")}</div>
     <h2>Featured</h2>
     <div class="feat-row">${featured.map((p) => ideaCard(p, "feat")).join("")}</div>
-    <h2>Recommended for you</h2>
+    <h2>For you</h2>
     ${recs.map((p) => ideaCard(p, "rec")).join("")}`;
 }
 
@@ -763,14 +743,13 @@ function renderCommunity() {
     S.placeFilter ? g.place === S.placeFilter : S.filter === "all" || place(g.place).activity === S.filter);
   return `
     <div class="head-row"><h1>Groups</h1>
-      <button class="btn small" data-action="newgroup">${icon("plus")} Start a group</button></div>
-    <p class="sub">People heading out soon. Join one or start your own.</p>
+      <button class="btn small" data-action="newgroup">${icon("plus")} New</button></div>
     <div class="filters">
       ${S.placeFilter ? `<button class="fchip" aria-pressed="true" data-action="clearplace">${icon("map-pin")} ${esc(place(S.placeFilter).name)} ${icon("x")}</button>` : ""}
       <button class="fchip" data-action="filter" data-id="all" aria-pressed="${!S.placeFilter && S.filter === "all"}">All</button>
       ${used.map((id) => `<button class="fchip" data-action="filter" data-id="${id}" aria-pressed="${!S.placeFilter && S.filter === id}">${icon(act(id).icon)} ${act(id).name}</button>`).join("")}
     </div>
-    ${list.length ? "" : `<p class="sub">No groups here yet. Start the first one.</p>`}
+    ${list.length ? "" : `<p class="sub">No groups yet.</p>`}
     ${list.map(groupCard).join("")}`;
 }
 
@@ -798,31 +777,29 @@ function renderUpdate() {
   const pct = next ? Math.round(((S.points - prev) / (next.points - prev)) * 100) : 100;
   const here = S.updatePlace || [...D.places].sort((a, b) => milesFromYou(a) - milesFromYou(b))[0].id;  // nearest spot
   return `
-    <h1>Share an update</h1>
-    <p class="sub">Tell people what it's like right now and earn points toward rewards.</p>
+    <h1 style="margin-bottom:16px">Share an update</h1>
     <div class="points">
-      <div class="label">Your points</div>
+      <div class="label">Points</div>
       <div class="big">${S.points}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="label">${next ? `${next.points - S.points} points to ${esc(next.name)}` : "You've unlocked every reward"}</div>
+      <div class="label">${next ? `${next.points - S.points} to ${esc(next.name)}` : "All rewards unlocked"}</div>
     </div>
 
     <form id="updateform">
-      <label for="u-place">Where are you?</label>
+      <label for="u-place">Where</label>
       <select id="u-place" name="place">${D.places.map((p) => `<option value="${p.id}" ${p.id === here ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select>
-      <label>How busy is it?</label>
+      <label>How busy</label>
       <div class="choices">
         ${LEVELS.map(([id, name]) => `<label class="fchip lvl" style="--dot:var(--${id});--bg:var(--${id}-bg)">
           <input type="radio" name="busy" value="${id}" required>${name}</label>`).join("")}
       </div>
-      <label>Conditions <span style="font-weight:400">(tap any)</span></label>
+      <label>Conditions</label>
       <div class="choices">
         ${D.conditionTags.map((t) => `<label class="fchip"><input type="checkbox" name="tags" value="${esc(t)}">${esc(t)}</label>`).join("")}
       </div>
-      <label for="u-note">Anything else? <span style="font-weight:400">(optional)</span></label>
-      <textarea id="u-note" name="note" maxlength="140" placeholder="Parking lot is almost full, bring a jacket..."></textarea>
+      <label for="u-note">Note</label>
+      <textarea id="u-note" name="note" maxlength="140" placeholder="Optional"></textarea>
       <div style="margin-top:18px"><button class="btn" id="u-submit">Post update</button></div>
-      <p class="rules">Busyness +${D.pointsFor.busyness} · Conditions +${D.pointsFor.conditions} · Note +${D.pointsFor.note}</p>
     </form>
 
     <h2>Rewards</h2>
@@ -831,7 +808,7 @@ function renderUpdate() {
         ${icon(S.points >= r.points ? "gift" : "lock")} ${esc(r.name)}<span class="pts">${S.points >= r.points ? "Unlocked" : `${r.points} pts`}</span></button>`).join("")}
     </div>
 
-    <h2>Recent updates</h2>
+    <h2>Recent</h2>
     ${S.updates.map(updateCard).join("")}`;
 }
 
@@ -849,7 +826,7 @@ function bindUpdateForm() {
     S.updatePlace = null;
     const unlocked = D.rewards.find((r) => r.points > before && r.points <= S.points);
     render(); $("#screen").scrollTop = 0;
-    toast(unlocked ? `+${earned} points. You unlocked: ${unlocked.name}!` : `+${earned} points. Thanks for the update!`);
+    toast(unlocked ? `+${earned} points · Unlocked ${unlocked.name}` : `+${earned} points`);
   };
 }
 
@@ -870,7 +847,7 @@ function groupCard(g) {
         </div>
         <div class="facts">
           <div>${icon("users")} <span class="grow">${g.going} going</span>
-            <span class="spots">${g.spots ? `${g.spots} spot${g.spots === 1 ? "" : "s"} left` : "Full"}</span>
+            <span class="spots">${g.spots ? `${g.spots} left` : "Full"}</span>
             <button class="btn small chat-btn" data-action="chat" data-id="${i}">${icon("message-circle")} Chat${g.chat.length ? ` · ${g.chat.length}` : ""}</button></div>
         </div>
       </div>`;
@@ -915,7 +892,7 @@ function showMap() {
       (f === "quiet" && level(busyNow(p)).cls === "quiet") || (f === "picks" && S.interests.has(p.activity)))
     .forEach((p) => { const fav = S.favs.includes(p.id);  // favorites get a bigger pin with a gold star
       pin(p, `<div class="pin ${fav ? "fav" : ""}" style="--pin:var(--${level(busyNow(p)).cls})">${icon(act(p.activity).icon)}${p.deal ? `<span class="tagged">%</span>` : ""}</div>`, { kind: "place", id: p.id }, fav); });
-  if (f === "favs" && !S.favs.length) toast("No favorites yet. Tap the star on any spot.");
+  if (f === "favs" && !S.favs.length) toast("No favorites yet");
   if (f === "all" || f === "biz") D.businesses
     .forEach((b, i) => pin(b, `<div class="pin biz">${icon(BIZ_ICONS[b.type] || "store")}</div>`, { kind: "biz", id: i }));
   drawMapCard();
@@ -935,7 +912,7 @@ function drawMapCard() {
           ${badge(busyNow(p))}</div>
         <div class="facts">
           <div>${icon("ticket")} ${esc(p.price)}</div>
-          <div class="best">${icon("clock")} Best time today: ${bestTime(p)}</div>
+          <div class="best">${icon("clock")} Best ${bestTime(p)}</div>
           ${dealLine(p)}
         </div>
         <div class="actions">
@@ -973,27 +950,29 @@ function openDetail(id) {
         ${hero(p)}
         <div class="eyebrow" ${tint(p)}>${act(p.activity).name}</div>
         <h2 class="sheet-title">${esc(p.name)}</h2>
-        <div class="meta">${icon("map-pin")} ${esc(p.town)} · ${p.miles} mi away</div>
-        <h2 class="row" style="justify-content:space-between">Busyness today ${badge(s[NOW], " now")}</h2>
+        <div class="meta">${icon("map-pin")} ${esc(p.town)} · ${p.miles} mi</div>
+        <p class="pitch">${esc(p.pitch)}</p>
+        <h2 class="row" style="justify-content:space-between">Today ${badge(s[NOW], " now")}</h2>
         <div class="chart" aria-label="Busyness by hour, 8 AM to 10 PM">
           ${s.map((v, i) => `<div class="bar ${level(v).bar} ${i === NOW ? "now" : ""}" style="height:${v}%" title="${h12(i + 8)} ${ampm(i + 8)}: ${level(v).label}"></div>`).join("")}
         </div>
         ${p.deal ? `<div class="dealrow" aria-hidden="true">${s.map((v, i) => `<span class="${i + 8 >= p.deal.start && i + 8 < p.deal.end ? "on" : ""}"></span>`).join("")}</div>` : ""}
         <div class="axis"><span>8a</span><span>11a</span><span>2p</span><span>5p</span><span>8p</span><span>10p</span></div>
-        ${p.deal ? `<div class="deal-key">Deal hours: ${esc(p.deal.text)}, ${hourRange(p.deal.start, p.deal.end)}</div>` : ""}
+        ${p.deal ? `<div class="deal-key">${esc(p.deal.text)} · ${hourRange(p.deal.start, p.deal.end)}</div>` : ""}
         <dl class="info">
-          <dt>${icon("clock")} Best time</dt><dd>${bestTime(p)}</dd>
-          <dt>${icon("cloud-sun")} Conditions</dt><dd>${esc(p.conditions)}</dd>
+          <dt>${icon("clock")} Best</dt><dd>${bestTime(p)}</dd>
+          <dt>${icon("cloud-sun")} Now</dt><dd>${esc(p.conditions)}</dd>
           <dt>${icon("ticket")} Price</dt><dd>${esc(p.price)}</dd>
-          ${p.deal ? `<dt>${icon("tag")} Deal</dt><dd class="deal-line">${esc(p.deal.text)}<div class="meta">${dealWhen(p)}</div></dd>` : ""}
           ${(() => { const u = S.updates.find((x) => x.place === p.id); return u ? `<dt>${icon("megaphone")} Latest</dt>
             <dd>${LEVELS.find(([id]) => id === u.busy)[1]}${u.tags.length ? ` · ${esc(u.tags.join(", "))}` : ""}
               <div class="meta">${esc(u.who)}, ${esc(u.ago.toLowerCase())}</div></dd>` : ""; })()}
         </dl>
         <div class="stack">
-          <button class="btn" data-action="directions">${icon("navigation")} Get directions</button>
-          <button class="btn ghost" data-action="groupsat" data-id="${p.id}">${icon("users")} See groups going</button>
-          <button class="btn ghost" data-action="updatehere" data-id="${p.id}">${icon("megaphone")} Post an update here</button>
+          <button class="btn" data-action="directions">${icon("navigation")} Directions</button>
+          <div class="row" style="gap:10px">
+            <button class="btn ghost" data-action="groupsat" data-id="${p.id}">${icon("users")} Groups</button>
+            <button class="btn ghost" data-action="updatehere" data-id="${p.id}">${icon("megaphone")} Update</button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -1003,10 +982,10 @@ function openNewGroup() {
   const opts = (list) => list.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join("");
   $("#sheet").innerHTML = `
     <div class="scrim" data-action="closesheet">
-      <form class="sheet" id="groupform" role="dialog" aria-label="Start a group">
+      <form class="sheet" id="groupform" role="dialog" aria-label="New group">
         <div class="grab"></div>
         <button type="button" class="close" data-action="closesheet" aria-label="Close">${icon("x")}</button>
-        <h2 class="sheet-title">Start a group</h2>
+        <h2 class="sheet-title">New group</h2>
         <label for="g-act">Activity</label>
         <select id="g-act">${opts(D.activities)}</select>
         <label for="g-place">Place</label>
@@ -1033,7 +1012,7 @@ function openNewGroup() {
       going: 1, spots: 5, joined: true, chat: [],
     });
     S.filter = "all"; S.placeFilter = null;
-    closeSheet(); render(); toast("Group created. You're the first one in.");
+    closeSheet(); render(); toast("Group created");
   };
 }
 // Group chat. Anyone can read; you join the group to send.
@@ -1056,11 +1035,11 @@ function openChat(i) {
             <div class="msg me"><div class="bubble">${esc(m.text)}</div></div>` : `
             <div class="msg"><span class="av">${esc(m.from[0])}</span>
               <div class="bubble"><span class="who">${esc(m.from)}</span>${esc(m.text)}</div></div>`).join("")
-            : `<p class="empty">No messages yet. Say hi to the group.</p>`}
+            : `<p class="empty">No messages yet.</p>`}
         </div>
         ${g.joined ? `
           <form class="composer" id="composer">
-            <input id="msg" placeholder="Message the group" autocomplete="off" aria-label="Message" maxlength="300">
+            <input id="msg" placeholder="Message" autocomplete="off" aria-label="Message" maxlength="300">
             <button class="send" aria-label="Send">${icon("send")}</button>
           </form>` : `
           <div class="composer"><button class="btn" data-action="join" data-id="${i}" ${g.spots ? "" : "disabled"}>
@@ -1132,7 +1111,7 @@ document.addEventListener("click", (e) => {
     case "updatehere": S.updatePlace = id; closeSheet(); goTab("update"); break;
     case "reward": {
       const r = D.rewards[id];
-      toast(S.points >= r.points ? `Reward claimed: ${r.name}. Show this at the counter.` : `${r.points - S.points} more points to unlock ${r.name}.`);
+      toast(S.points >= r.points ? `Claimed: ${r.name}` : `${r.points - S.points} more points`);
       break;
     }
     case "theme":
@@ -1143,18 +1122,18 @@ document.addEventListener("click", (e) => {
     case "dview": S.discoverView = id; render(); break;
     case "mapfilter": S.mapFilter = id; S.mapSel = null; render(); break;
     case "locate": map?.setView([D.you.lat, D.you.lng], 13); break;
-    case "deal": toast(`Deal saved: ${D.businesses[id].deal}`); break;
+    case "deal": toast("Deal saved"); break;
     case "tab": goTab(id); break;
     case "welcome": hideWelcome(); break;
     case "reset": closeSheet(); showWelcome(); S = freshState(); map?.setView([D.you.lat, D.you.lng], 13, { animate: false }); render(); break;
     case "detail": openDetail(id); break;
     case "closesheet": e.preventDefault(); closeSheet(); break;
-    case "directions": toast("This would open Maps (not in the prototype)"); break;
+    case "directions": toast("Opens Maps (demo)"); break;
     case "groupsat": S.placeFilter = id; closeSheet(); goTab("community"); break;
     case "fav": {
       const i = S.favs.indexOf(id), p = place(id);
-      if (i < 0) { S.favs.unshift(id); toast(`${p.name} added to favorites.`); }
-      else { S.favs.splice(i, 1); toast(`${p.name} removed from favorites.`); }
+      if (i < 0) { S.favs.unshift(id); toast("Added to favorites"); }
+      else { S.favs.splice(i, 1); toast("Removed from favorites"); }
       const y = $("#screen").scrollTop;
       render();
       $("#screen").scrollTop = y;
@@ -1163,8 +1142,8 @@ document.addEventListener("click", (e) => {
     }
     case "save": {
       const i = S.saved.indexOf(id), p = place(id);
-      if (i < 0) { S.saved.unshift(id); toast(`Saved ${p.name}. Find it on Home.`); }
-      else { S.saved.splice(i, 1); toast(`Removed ${p.name} from saved.`); }
+      if (i < 0) { S.saved.unshift(id); toast("Saved"); }
+      else { S.saved.splice(i, 1); toast("Removed"); }
       const y = $("#screen").scrollTop, x = $(".feat-row")?.scrollLeft;
       render();
       $("#screen").scrollTop = y;  // keep your place in the list
@@ -1180,7 +1159,7 @@ document.addEventListener("click", (e) => {
       g.joined = !g.joined;
       g.going += g.joined ? 1 : -1;
       g.spots += g.joined ? -1 : 1;
-      toast(g.joined ? `You're in. See you ${g.when}.` : "You left the group.");
+      toast(g.joined ? "You're in" : "Left group");
       render();
       if ($("#chat")) openChat(+id);  // joined from inside the chat: unlock the composer
       break;
