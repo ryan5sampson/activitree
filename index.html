@@ -6,6 +6,9 @@
 <title>Activitree</title>
 <!-- Load data.js fresh every time so edits show up right away (no stale cache). -->
 <script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
+<!-- Map tab: Leaflet (open-source map library). Map tiles need an internet connection. -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <style>
   /* ---------- Colors. Dark is the default; the header button switches to light. ---------- */
   /* Change --accent (both themes) to rebrand. --on-accent is text on accent buttons. */
@@ -205,6 +208,31 @@
   .composer .send { width: 48px; height: 48px; border-radius: 50%; border: 0; flex: none; background: var(--accent);
                     color: var(--on-accent); display: grid; place-items: center; }
 
+  /* ---------- Map tab ---------- */
+  #mapwrap { flex: 1; position: relative; overflow: hidden; }
+  #mapwrap[hidden], main[hidden] { display: none; }
+  #map { position: absolute; inset: 0; background: var(--paper); }
+  #map .empty { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; }
+  .leaflet-container { font: inherit; background: var(--paper); }
+  .leaflet-control-attribution { background: color-mix(in srgb, var(--card) 85%, transparent) !important; color: var(--muted); font-size: 10px; }
+  .leaflet-control-attribution a { color: var(--muted); }
+  .map-chips { position: absolute; top: 12px; left: 0; right: 0; z-index: 1000; display: flex; gap: 8px;
+               overflow-x: auto; padding: 0 16px 6px; }
+  .map-chips .fchip { box-shadow: var(--shadow); }
+  .locate { position: absolute; top: 64px; right: 16px; z-index: 1000; width: 44px; height: 44px; border-radius: 50%;
+            border: 1px solid var(--line); background: var(--card); color: var(--ink); display: grid; place-items: center; box-shadow: var(--shadow); }
+  #mapcard { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 1000; }
+  #mapcard .card { margin: 0; box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+  #mapcard .actions { display: flex; gap: 8px; margin-top: 14px; }
+  #mapcard .actions .btn { flex: 1; }
+  .deal { color: var(--accent); font-weight: 600; }
+  .pin { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--card);
+         color: var(--ink); border: 3px solid var(--pin); box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+  .pin .i { width: 16px; height: 16px; }
+  .pin.biz { border-radius: 10px; border-color: var(--muted); color: var(--muted); }
+  .you { width: 18px; height: 18px; border-radius: 50%; background: #3b82f6; border: 3px solid #fff;
+         box-shadow: 0 0 0 7px rgba(59,130,246,.25); }
+
   /* ---------- Bottom tab bar ---------- */
   nav { display: flex; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--card) 92%, transparent);
         backdrop-filter: blur(10px); padding: 6px 8px calc(8px + env(safe-area-inset-bottom)); }
@@ -258,6 +286,13 @@
     <button class="theme" id="theme" data-action="theme"></button>
   </header>
   <main id="screen"></main>
+  <!-- The map lives outside #screen so it's created once and never torn down. -->
+  <section id="mapwrap" hidden>
+    <div id="map" role="region" aria-label="Map of places near you"></div>
+    <div class="map-chips" id="mapchips"></div>
+    <button class="locate" data-action="locate" aria-label="Center on me"></button>
+    <div id="mapcard"></div>
+  </section>
   <nav id="tabs" hidden></nav>
   <div id="sheet"></div>
   <div id="toast" role="status" aria-live="polite"></div>
@@ -279,6 +314,13 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "map": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\" /> <path d=\"M15 5.764v15\" /> <path d=\"M9 3.236v15\" />",
+  "coffee": "<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />",
+  "utensils": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />",
+  "backpack": "<path d=\"M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z\" /> <path d=\"M8 10h8\" /> <path d=\"M8 18h8\" /> <path d=\"M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6\" /> <path d=\"M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2\" />",
+  "locate-fixed": "<line x1=\"2\" x2=\"5\" y1=\"12\" y2=\"12\" /> <line x1=\"19\" x2=\"22\" y1=\"12\" y2=\"12\" /> <line x1=\"12\" x2=\"12\" y1=\"2\" y2=\"5\" /> <line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\" /> <circle cx=\"12\" cy=\"12\" r=\"7\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />",
+  "store": "<path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\" /> <path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\" /> <path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\" /> <path d=\"M2 7h20\" /> <path d=\"M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7\" />",
+  "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />",
   "circle-dot": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"1\" />",
   "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />",
   "moon": "<path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\" />",
@@ -332,6 +374,8 @@ function freshState() {
     groups: D.groups.map((g) => ({ ...g, chat: [...(g.chat || [])], joined: false })),
     filter: "all",          // Community activity filter
     placeFilter: null,      // Community place filter (from "See groups going")
+    mapFilter: "all",       // Map chips: all, quiet, picks, biz
+    mapSel: null,           // selected map pin: { kind: "place" | "biz", id }
   };
 }
 
@@ -496,6 +540,85 @@ function renderCommunity() {
     }).join("")}`;
 }
 
+// ---------- Map tab ----------
+// Pins: places are ringed by busyness color; businesses are square and gray.
+const BIZ_ICONS = { Coffee: "coffee", Food: "utensils", "Gear rental": "backpack" };
+const MAP_CHIPS = [["all", "All"], ["quiet", "Quiet now"], ["picks", "Your picks"], ["biz", "Food & gear"]];
+const milesFromYou = (o) => Math.hypot((o.lat - D.you.lat) * 69, (o.lng - D.you.lng) * 53).toFixed(1);
+let map, tiles, pins;
+
+// Shows the map tab: builds the map the first time, then just updates tiles and pins.
+function showMap() {
+  $("#mapchips").innerHTML = MAP_CHIPS.map(([id, label]) =>
+    `<button class="fchip" data-action="mapfilter" data-id="${id}" aria-pressed="${S.mapFilter === id}">${label}</button>`).join("");
+  if (!window.L) { $("#map").innerHTML = `<p class="empty">The map needs an internet connection.</p>`; return; }
+  if (!map) {
+    map = L.map("map", { zoomControl: false }).setView([D.you.lat, D.you.lng], 13);
+    map.on("click", () => { S.mapSel = null; drawMapCard(); });
+    L.marker([D.you.lat, D.you.lng], { interactive: false, icon: L.divIcon({ className: "", html: '<div class="you"></div>', iconSize: [18, 18] }) }).addTo(map);
+    pins = L.layerGroup().addTo(map);
+  }
+  map.invalidateSize();  // the map was hidden, so let it re-measure
+
+  // Free CARTO tiles, dark or light to match the theme.
+  const url = `https://{s}.basemaps.cartocdn.com/${document.documentElement.dataset.theme === "light" ? "light_all" : "dark_all"}/{z}/{x}/{y}{r}.png`;
+  if (tiles?._url !== url) {
+    tiles?.remove();
+    tiles = L.tileLayer(url, { subdomains: "abcd", maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' }).addTo(map);
+  }
+
+  pins.clearLayers();
+  const pin = (o, html, sel) => L.marker([o.lat, o.lng], { title: o.name, icon: L.divIcon({ className: "", html, iconSize: [36, 36] }) })
+    .on("click", () => { S.mapSel = sel; drawMapCard(); }).addTo(pins);
+  const f = S.mapFilter;
+  if (f !== "biz") D.places
+    .filter((p) => f === "all" || (f === "quiet" && level(busyNow(p)).cls === "quiet") || (f === "picks" && S.interests.has(p.activity)))
+    .forEach((p) => pin(p, `<div class="pin" style="--pin:var(--${level(busyNow(p)).cls})">${icon(act(p.activity).icon)}</div>`, { kind: "place", id: p.id }));
+  if (f === "all" || f === "biz") D.businesses
+    .forEach((b, i) => pin(b, `<div class="pin biz">${icon(BIZ_ICONS[b.type] || "store")}</div>`, { kind: "biz", id: i }));
+  drawMapCard();
+}
+
+// Preview card for the tapped pin.
+function drawMapCard() {
+  const sel = S.mapSel, el = $("#mapcard");
+  if (!el) return;
+  if (!sel) { el.innerHTML = ""; return; }
+  if (sel.kind === "place") {
+    const p = place(sel.id);
+    el.innerHTML = `
+      <div class="card">
+        <div class="row">${tile(p)}
+          <div class="grow"><div class="title">${esc(p.name)}</div><div class="meta">${act(p.activity).name} · ${p.miles} mi</div></div>
+          ${badge(busyNow(p))}</div>
+        <div class="facts">
+          <div>${icon("ticket")} ${esc(p.price)}</div>
+          <div class="best">${icon("clock")} Best time today: ${bestTime(p)}</div>
+        </div>
+        <div class="actions">
+          <button class="btn small" data-action="detail" data-id="${p.id}">Details</button>
+          <button class="btn small ghost" data-action="directions">${icon("navigation")} Directions</button>
+        </div>
+      </div>`;
+  } else {
+    const b = D.businesses[sel.id];
+    el.innerHTML = `
+      <div class="card">
+        <div class="row"><span class="tile" style="--c:#7d8790">${icon(BIZ_ICONS[b.type] || "store")}</span>
+          <div class="grow"><div class="title">${esc(b.name)}</div><div class="meta">${esc(b.type)} · ${milesFromYou(b)} mi</div></div></div>
+        <div class="facts">
+          <div>${icon("store")} ${esc(b.note)}</div>
+          ${b.deal ? `<div class="deal">${icon("tag")} ${esc(b.deal)}</div>` : ""}
+        </div>
+        <div class="actions">
+          <button class="btn small" data-action="deal" data-id="${sel.id}">Use deal</button>
+          <button class="btn small ghost" data-action="directions">${icon("navigation")} Directions</button>
+        </div>
+      </div>`;
+  }
+}
+
 // ---------- Sheets ----------
 function openDetail(id) {
   const p = place(id), s = series(p);
@@ -624,10 +747,12 @@ function toast(msg) {
 }
 
 // ---------- Render ----------
-const TABS = [["home", "house", "Home"], ["discover", "compass", "Discover"], ["community", "users", "Community"]];
+const TABS = [["home", "house", "Home"], ["discover", "compass", "Discover"], ["map", "map", "Map"], ["community", "users", "Community"]];
 function render() {
   const screens = { intro: renderIntro, home: renderHome, discover: renderDiscover, community: renderCommunity };
-  $("#screen").innerHTML = screens[S.tab]();
+  $("#screen").hidden = S.tab === "map";
+  $("#mapwrap").hidden = S.tab !== "map";
+  if (S.tab === "map") showMap(); else $("#screen").innerHTML = screens[S.tab]();
   $("#tabs").hidden = S.tab === "intro";
   $("#tabs").innerHTML = TABS.map(([id, ic, label]) =>
     `<button data-action="tab" data-id="${id}" ${id === S.tab ? 'aria-current="page"' : ""}><span>${icon(ic)}</span>${label}</button>`).join("");
@@ -647,9 +772,13 @@ document.addEventListener("click", (e) => {
     case "theme":
       document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
       setThemeButton();
+      if (S.tab === "map") render();  // swap map tiles to match
       break;
+    case "mapfilter": S.mapFilter = id; S.mapSel = null; render(); break;
+    case "locate": map?.setView([D.you.lat, D.you.lng], 13); break;
+    case "deal": toast(`Deal saved: ${D.businesses[id].deal}`); break;
     case "tab": goTab(id); break;
-    case "reset": closeSheet(); S = freshState(); render(); toast("Demo reset. Ready for the next person."); break;
+    case "reset": closeSheet(); S = freshState(); map?.setView([D.you.lat, D.you.lng], 13, { animate: false }); render(); toast("Demo reset. Ready for the next person."); break;
     case "detail": openDetail(id); break;
     case "closesheet": e.preventDefault(); closeSheet(); break;
     case "directions": toast("This would open Maps (not in the prototype)"); break;
@@ -691,6 +820,7 @@ function setThemeButton() {
 // ---------- Start ----------
 $("#logo").innerHTML = icon("trees");
 $("#brand").textContent = D.appName;
+$(".locate").innerHTML = icon("locate-fixed");
 setThemeButton();
 S = freshState();
 render();
