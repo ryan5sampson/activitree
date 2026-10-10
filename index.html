@@ -116,30 +116,22 @@
   .mini .ico { font-size: 24px; }
   .mini .title { font-size: 14px; margin: 4px 0 6px; }
 
-  /* ---------- Discover deck ---------- */
-  .deck { position: relative; height: 360px; margin-bottom: 16px; }
-  .swipe {
-    position: absolute; inset: 0; border-radius: 24px; overflow: hidden; background: #fff;
-    border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0,0,0,.08);
-    touch-action: none; user-select: none; transition: transform .25s;
-  }
-  .swipe.behind { transform: scale(.95) translateY(12px); }
-  .swipe.dragging { transition: none; }
-  .hero { height: 190px; display: grid; place-items: center; font-size: 84px; }
-  .swipe .body { padding: 16px; }
-  .swipe .title { font-size: 22px; }
-  .pitch { margin: 10px 0 0; font-size: 15px; }
-  .stamp { position: absolute; top: 18px; padding: 6px 12px; border: 3px solid; border-radius: 10px;
-           font-weight: 800; font-size: 20px; opacity: 0; background: #fff; }
-  .stamp.like { left: 18px; color: var(--quiet); transform: rotate(-12deg); }
-  .stamp.nope { right: 18px; color: var(--busy); transform: rotate(12deg); }
-  .actions { display: flex; justify-content: center; gap: 28px; }
-  .round {
-    width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--line);
-    background: #fff; font-size: 30px; display: grid; place-items: center;
-  }
-  .round small { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-top: -6px; }
-  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 12px; }
+  /* ---------- Discover: featured carousel + recommended list ---------- */
+  .feat-row { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+              margin: 0 -16px; padding: 0 16px 8px; scroll-padding: 0 16px; }
+  .feat, .rec { position: relative; background: #fff; border: 1px solid var(--line);
+                border-radius: 20px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .feat { flex: none; width: 270px; scroll-snap-align: start; }
+  .rec { margin-bottom: 12px; }
+  .open { display: block; width: 100%; border: 0; background: none; padding: 0; text-align: left; }
+  .hero { height: 130px; display: grid; place-items: center; font-size: 60px; }
+  .open .body { padding: 12px 14px 14px; }
+  .rec .open { display: flex; align-items: stretch; }
+  .rec .hero { flex: none; width: 92px; height: auto; font-size: 38px; }
+  .rec .body { flex: 1; min-width: 0; padding-right: 56px; }
+  .pitch { margin: 6px 0 8px; font-size: 14px; }
+  .heart { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border-radius: 50%;
+           border: 0; background: rgba(255,255,255,.92); font-size: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 
   /* ---------- Community ---------- */
   .filters { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 14px; padding: 2px 16px 6px; }
@@ -228,7 +220,6 @@ function freshState() {
     tab: "intro",
     interests: new Set(),
     saved: [],              // place ids, newest first
-    skipped: new Set(),     // place ids skipped in Discover
     groups: D.groups.map((g) => ({ ...g, joined: false })),
     filter: "all",          // Community activity filter
     placeFilter: null,      // Community place filter (from "See groups going")
@@ -322,41 +313,43 @@ function renderHome() {
       </button>`).join("")}`;
 }
 
-// Discover favors activities OUTSIDE your interests, then the rest.
-function deck() {
-  const left = D.places.filter((p) => !S.saved.includes(p.id) && !S.skipped.has(p.id));
-  return [...left.filter((p) => !S.interests.has(p.activity)), ...left.filter((p) => S.interests.has(p.activity))];
-}
 // One gradient per activity type for the photo-style header.
 const HUES = { ski: 205, hike: 120, climb: 25, skate: 190, bike: 90, water: 195, parks: 300, arcade: 270, bowl: 340, sports: 35, events: 320, museum: 50 };
 const hero = (p) => { const h = HUES[p.activity] ?? 200; return `background:linear-gradient(135deg,hsl(${h} 70% 82%),hsl(${h + 30} 60% 62%))`; };
 
+// One Discover card. Tap the card for details; tap the heart to save.
+function ideaCard(p, cls) {
+  const saved = S.saved.includes(p.id);
+  return `
+    <div class="${cls}">
+      <button class="open" data-action="detail" data-id="${p.id}">
+        <div class="hero" style="${hero(p)}">${act(p.activity).icon}</div>
+        <div class="body">
+          <div class="title">${act(p.activity).name}</div>
+          <div class="meta">${esc(p.name)} · ${p.miles} mi · ${esc(p.price)}</div>
+          <p class="pitch">${esc(p.pitch)}</p>
+          ${badge(busyNow(p))}
+        </div>
+      </button>
+      <button class="heart" data-action="save" data-id="${p.id}" aria-pressed="${saved}"
+        aria-label="${saved ? "Unsave" : "Save"} ${esc(p.name)}">${saved ? "❤️" : "🤍"}</button>
+    </div>`;
+}
+
+// Both sections sort quietest first, so less busy options always lead.
+// Recommended favors activities OUTSIDE your interests (falls back to all).
 function renderDiscover() {
-  const cards = deck();
-  if (!cards.length) return `
-    <h1>Discover</h1>
-    <p class="sub">That's everything nearby for now.</p>
-    <button class="btn ghost" data-action="unskip">Show skipped ideas again</button>`;
+  const featured = D.places.filter((p) => p.featured).sort(byQuiet);
+  const rest = D.places.filter((p) => !p.featured);
+  const outside = rest.filter((p) => !S.interests.has(p.activity));
+  const recs = (outside.length ? outside : rest).sort(byQuiet);
   return `
     <h1>Try something new</h1>
-    <p class="sub">Ideas outside your usual picks.</p>
-    <div class="deck">
-      ${cards.slice(0, 2).reverse().map((p, i, arr) => `
-        <div class="swipe ${i < arr.length - 1 ? "behind" : ""}" ${i === arr.length - 1 ? 'id="top"' : ""}>
-          <div class="hero" style="${hero(p)}">${act(p.activity).icon}</div>
-          <div class="stamp like">SAVE</div><div class="stamp nope">SKIP</div>
-          <div class="body">
-            <div class="row"><div class="grow title">${act(p.activity).name}</div>${badge(busyNow(p))}</div>
-            <div class="meta">${esc(p.name)} · ${esc(p.town)} · ${esc(p.price)}</div>
-            <p class="pitch">${esc(p.pitch)}</p>
-          </div>
-        </div>`).join("")}
-    </div>
-    <div class="actions">
-      <button class="round" data-action="skip" aria-label="Skip">✕<small>Skip</small></button>
-      <button class="round" data-action="save" aria-label="Save">❤️<small>Save</small></button>
-    </div>
-    <p class="hint">Swipe right to save, left to skip</p>`;
+    <p class="sub">Quiet spots first. Tap ❤️ to save one for later.</p>
+    <h2>Featured</h2>
+    <div class="feat-row">${featured.map((p) => ideaCard(p, "feat")).join("")}</div>
+    <h2>Recommended for you</h2>
+    ${recs.map((p) => ideaCard(p, "rec")).join("")}`;
 }
 
 function renderCommunity() {
@@ -474,41 +467,8 @@ function render() {
   $("#screen").innerHTML = screens[S.tab]();
   $("#tabs").hidden = S.tab === "intro";
   document.querySelectorAll("#tabs button").forEach((b) => b.toggleAttribute("aria-current", b.dataset.id === S.tab));
-  if (S.tab === "discover") bindSwipe();
 }
 function goTab(tab) { S.tab = tab; render(); $("#screen").scrollTop = 0; }
-
-// ---------- Discover: save/skip and swipe gesture ----------
-function decide(save) {
-  const top = $("#top"), p = deck()[0];
-  if (!top || !p) return;
-  top.style.transform = `translateX(${save ? 140 : -140}%) rotate(${save ? 20 : -20}deg)`;
-  setTimeout(() => {
-    if (save) { S.saved.unshift(p.id); toast(`Saved ${p.name}. Find it on Home.`); }
-    else S.skipped.add(p.id);
-    render();
-  }, 200);
-}
-function bindSwipe() {
-  const card = $("#top");
-  if (!card) return;
-  let x0 = null, dx = 0;
-  card.onpointerdown = (e) => { x0 = e.clientX; dx = 0; card.classList.add("dragging"); card.setPointerCapture(e.pointerId); };
-  card.onpointermove = (e) => {
-    if (x0 === null) return;
-    dx = e.clientX - x0;
-    card.style.transform = `translateX(${dx}px) rotate(${dx / 15}deg)`;
-    card.querySelector(".like").style.opacity = Math.max(0, dx / 100);
-    card.querySelector(".nope").style.opacity = Math.max(0, -dx / 100);
-  };
-  card.onpointerup = card.onpointercancel = () => {
-    if (x0 === null) return;
-    x0 = null; card.classList.remove("dragging");
-    if (Math.abs(dx) > 90) decide(dx > 0);
-    else if (Math.abs(dx) < 5) toast("Swipe right to save, left to skip");
-    else { card.style.transform = ""; card.querySelectorAll(".stamp").forEach((s) => (s.style.opacity = 0)); }
-  };
-}
 
 // ---------- One click handler for every tappable element ----------
 document.addEventListener("click", (e) => {
@@ -526,9 +486,16 @@ document.addEventListener("click", (e) => {
     case "closesheet": e.preventDefault(); closeSheet(); break;
     case "directions": toast("This would open Maps (not in the prototype)"); break;
     case "groupsat": S.placeFilter = id; closeSheet(); goTab("community"); break;
-    case "save": decide(true); break;
-    case "skip": decide(false); break;
-    case "unskip": S.skipped.clear(); render(); break;
+    case "save": {
+      const i = S.saved.indexOf(id), p = place(id);
+      if (i < 0) { S.saved.unshift(id); toast(`Saved ${p.name}. Find it on Home.`); }
+      else { S.saved.splice(i, 1); toast(`Removed ${p.name} from saved.`); }
+      const y = $("#screen").scrollTop, x = $(".feat-row")?.scrollLeft;
+      render();
+      $("#screen").scrollTop = y;  // keep your place in the list
+      if ($(".feat-row")) $(".feat-row").scrollLeft = x;
+      break;
+    }
     case "filter": S.filter = id; S.placeFilter = null; render(); break;
     case "clearplace": S.placeFilter = null; render(); break;
     case "newgroup": openNewGroup(); break;
