@@ -5,7 +5,7 @@
 
 window.DATA = {
   // Working name shown in the header.
-  appName: "[APP NAME]",
+  appName: "Activitree",
 
   // The hour the demo pretends it is (0-23). null = use the phone's real clock.
   // Tip: set 15 for an afternoon demo so busyness looks interesting.
