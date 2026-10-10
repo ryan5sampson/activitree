@@ -163,6 +163,25 @@
   .facts .grow { flex: 1; }
   .spots { font-size: 12.5px; font-weight: 600; color: var(--ink); }
 
+  /* ---------- Group chat ---------- */
+  .chat-btn { margin-left: 8px; min-height: 36px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .chat-sheet { display: flex; flex-direction: column; height: 90%; padding-bottom: 0; }
+  .chat-head { padding: 6px 44px 14px 0; border-bottom: 1px solid var(--line); }
+  .msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 16px 0; }
+  .msg { display: flex; align-items: flex-end; gap: 8px; max-width: 85%; }
+  .msg .av { width: 30px; height: 30px; border-radius: 50%; flex: none; display: grid; place-items: center;
+             font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft); }
+  .bubble { padding: 9px 13px; border-radius: 18px 18px 18px 6px; background: var(--paper); font-size: 15px; line-height: 1.35; }
+  .bubble .who { display: block; font-size: 12px; font-weight: 650; color: var(--muted); margin-bottom: 2px; }
+  .msg.me { align-self: flex-end; }
+  .msg.me .bubble { background: var(--accent); color: #fff; border-radius: 18px 18px 6px 18px; }
+  .empty { margin: auto; text-align: center; color: var(--muted); font-size: 14px; }
+  .composer { display: flex; gap: 8px; padding: 12px 0 calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+  .composer input { flex: 1; border-radius: 99px; padding: 0 16px; }
+  .composer input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .composer .send { width: 48px; height: 48px; border-radius: 50%; border: 0; flex: none; background: var(--accent);
+                    color: #fff; display: grid; place-items: center; }
+
   /* ---------- Bottom tab bar ---------- */
   nav { display: flex; border-top: 1px solid var(--line); background: rgba(255,255,255,.92);
         backdrop-filter: blur(10px); padding: 6px 8px calc(8px + env(safe-area-inset-bottom)); }
@@ -236,6 +255,8 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />",
+  "send": "<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\" /> <path d=\"m21.854 2.147-10.94 10.939\" />",
   "bike": "<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <path d=\"M12 17.5V14l-3-3 4-3 2 3h2\" />",
   "calendar": "<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />",
   "check": "<path d=\"M20 6 9 17l-5-5\" />",
@@ -280,7 +301,7 @@ function freshState() {
     tab: "intro",
     interests: new Set(),
     saved: [],              // place ids, newest first
-    groups: D.groups.map((g) => ({ ...g, joined: false })),
+    groups: D.groups.map((g) => ({ ...g, chat: [...(g.chat || [])], joined: false })),
     filter: "all",          // Community activity filter
     placeFilter: null,      // Community place filter (from "See groups going")
   };
@@ -440,7 +461,8 @@ function renderCommunity() {
         </div>
         <div class="facts">
           <div>${icon("users")} <span class="grow">${g.going} going</span>
-            <span class="spots">${g.spots ? `${g.spots} spot${g.spots === 1 ? "" : "s"} left` : "Full"}</span></div>
+            <span class="spots">${g.spots ? `${g.spots} spot${g.spots === 1 ? "" : "s"} left` : "Full"}</span>
+            <button class="btn small chat-btn" data-action="chat" data-id="${i}">${icon("message-circle")} Chat${g.chat.length ? ` · ${g.chat.length}` : ""}</button></div>
         </div>
       </div>`;
     }).join("")}`;
@@ -506,10 +528,60 @@ function openNewGroup() {
     S.groups.unshift({
       title: `${a.name} group`, place: $("#g-place").value,
       when: `${$("#g-day").value} ${h12(h)}${m ? ":" + String(m).padStart(2, "0") : ""} ${ampm(h)}`,
-      going: 1, spots: 5, joined: true,
+      going: 1, spots: 5, joined: true, chat: [],
     });
     S.filter = "all"; S.placeFilter = null;
     closeSheet(); render(); toast("Group created. You're the first one in.");
+  };
+}
+// Group chat. Anyone can read; you join the group to send.
+function openChat(i) {
+  const g = S.groups[i], p = place(g.place);
+  $("#sheet").innerHTML = `
+    <div class="scrim" data-action="closesheet">
+      <div class="sheet chat-sheet" id="chat" data-group="${i}" role="dialog" aria-label="${esc(g.title)} chat">
+        <div class="grab"></div>
+        <button class="close" data-action="closesheet" aria-label="Close">${icon("x")}</button>
+        <div class="chat-head row">
+          ${tile(p)}
+          <div class="grow">
+            <div class="title">${esc(g.title)}</div>
+            <div class="meta">${esc(p.name)} · ${esc(g.when)} · ${g.going} going</div>
+          </div>
+        </div>
+        <div class="msgs" aria-live="polite">
+          ${g.chat.length ? g.chat.map((m) => m.from === "You" ? `
+            <div class="msg me"><div class="bubble">${esc(m.text)}</div></div>` : `
+            <div class="msg"><span class="av">${esc(m.from[0])}</span>
+              <div class="bubble"><span class="who">${esc(m.from)}</span>${esc(m.text)}</div></div>`).join("")
+            : `<p class="empty">No messages yet. Say hi to the group.</p>`}
+        </div>
+        ${g.joined ? `
+          <form class="composer" id="composer">
+            <input id="msg" placeholder="Message the group" autocomplete="off" aria-label="Message" maxlength="300">
+            <button class="send" aria-label="Send">${icon("send")}</button>
+          </form>` : `
+          <div class="composer"><button class="btn" data-action="join" data-id="${i}" ${g.spots ? "" : "disabled"}>
+            ${g.spots ? "Join to chat" : "This group is full"}</button></div>`}
+      </div>
+    </div>`;
+  const list = $(".msgs");
+  list.scrollTop = list.scrollHeight;
+  if (!g.joined) return;
+  $("#composer").onsubmit = (e) => {
+    e.preventDefault();
+    const text = $("#msg").value.trim();
+    if (!text) return;
+    g.chat.push({ from: "You", text });
+    openChat(i); render(); $("#msg").focus();
+    // A member replies shortly after, so the demo feels alive.
+    const others = [...new Set(g.chat.filter((m) => m.from !== "You").map((m) => m.from))];
+    const from = others[Math.floor(Math.random() * others.length)] || "Maya";
+    setTimeout(() => {
+      g.chat.push({ from, text: D.chatReplies[Math.floor(Math.random() * D.chatReplies.length)] });
+      render();
+      if ($("#chat")?.dataset.group == i) { const draft = $("#msg").value; openChat(i); $("#msg").value = draft; $("#msg").focus(); }
+    }, 1400);
   };
 }
 const closeSheet = () => { $("#sheet").innerHTML = ""; };
@@ -563,6 +635,7 @@ document.addEventListener("click", (e) => {
     case "filter": S.filter = id; S.placeFilter = null; render(); break;
     case "clearplace": S.placeFilter = null; render(); break;
     case "newgroup": openNewGroup(); break;
+    case "chat": openChat(+id); break;
     case "join": {
       const g = S.groups[id];
       g.joined = !g.joined;
@@ -570,6 +643,7 @@ document.addEventListener("click", (e) => {
       g.spots += g.joined ? -1 : 1;
       toast(g.joined ? `You're in. See you ${g.when}.` : "You left the group.");
       render();
+      if ($("#chat")) openChat(+id);  // joined from inside the chat: unlock the composer
       break;
     }
   }

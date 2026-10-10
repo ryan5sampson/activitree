@@ -97,16 +97,35 @@ window.DATA = {
   ],
 
   // ---- Community groups. place = a place id above. ----
+  // chat = sample messages shown when you open the group's chat.
   groups: [
-    { title: "Sunset hike",            place: "ymountain",  when: "Sat 6 PM",   going: 4, spots: 4 },
-    { title: "Beginner bouldering",    place: "quarry",     when: "Sat 7 PM",   going: 6, spots: 2 },
-    { title: "First chair crew",       place: "sundance",   when: "Sun 8 AM",   going: 3, spots: 1 },
-    { title: "Pickup volleyball",      place: "kiwanis",    when: "Mon 7 PM",   going: 9, spots: 3 },
-    { title: "Open skate + hot cocoa", place: "peaks",      when: "Fri 8 PM",   going: 5, spots: 5 },
-    { title: "Lake paddle",            place: "utahlake",   when: "Sat 5 PM",   going: 2, spots: 6 },
-    { title: "Glow bowling night",     place: "fatcats",    when: "Thu 9 PM",   going: 7, spots: 1 },
-    { title: "Local bands show",       place: "velour",     when: "Fri 8 PM",   going: 8, spots: 4 },
-    { title: "Easy river ride",        place: "provoriver", when: "Sun 10 AM",  going: 3, spots: 5 },
-    { title: "Dino museum trip",       place: "ancientlife",when: "Sat 11 AM",  going: 4, spots: 2 },
+    { title: "Sunset hike", place: "ymountain", when: "Sat 6 PM", going: 4, spots: 4, chat: [
+      { from: "Maya",  text: "Meeting at the trailhead lot at 5:45" },
+      { from: "Josh",  text: "Bring a headlamp for the way down" },
+      { from: "Maya",  text: "Anyone need a ride from campus?" } ] },
+    { title: "Beginner bouldering", place: "quarry", when: "Sat 7 PM", going: 6, spots: 2, chat: [
+      { from: "Tyler", text: "First time? Shoe rentals are at the front desk" },
+      { from: "Ana",   text: "I'm new too, glad I'm not the only one" } ] },
+    { title: "First chair crew", place: "sundance", when: "Sun 8 AM", going: 3, spots: 1, chat: [
+      { from: "Ben",   text: "6 inches overnight. Leaving Provo at 7:15" },
+      { from: "Kenzie",text: "I have room for 2 in my car" } ] },
+    { title: "Pickup volleyball", place: "kiwanis", when: "Mon 7 PM", going: 9, spots: 3, chat: [
+      { from: "Sam",   text: "I'll bring the net and a ball" },
+      { from: "Lily",  text: "All levels welcome, we rotate teams" } ] },
+    { title: "Open skate + hot cocoa", place: "peaks", when: "Fri 8 PM", going: 5, spots: 5, chat: [
+      { from: "Emma",  text: "Cocoa after at the shop across the street" } ] },
+    { title: "Lake paddle", place: "utahlake", when: "Sat 5 PM", going: 2, spots: 6, chat: [
+      { from: "Carlos",text: "Paddleboard rentals are $15 an hour at the marina" } ] },
+    { title: "Glow bowling night", place: "fatcats", when: "Thu 9 PM", going: 7, spots: 1, chat: [
+      { from: "Jess",  text: "Lane 12, we'll save you a spot" },
+      { from: "Drew",  text: "Loser buys fries" } ] },
+    { title: "Local bands show", place: "velour", when: "Fri 8 PM", going: 8, spots: 4, chat: [
+      { from: "Rachel",text: "Doors at 6, the opener is really good" } ] },
+    { title: "Easy river ride", place: "provoriver", when: "Sun 10 AM", going: 3, spots: 5, chat: [
+      { from: "Nate",  text: "Super chill pace, about 10 miles round trip" } ] },
+    { title: "Dino museum trip", place: "ancientlife", when: "Sat 11 AM", going: 4, spots: 2, chat: [] },
   ],
+
+  // After you send a chat message, another member replies with one of these.
+  chatReplies: ["Sounds good!", "See you there", "Nice, glad you're coming", "Can't wait", "Love it"],
 };
