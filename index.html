@@ -87,7 +87,7 @@
   }
 
   /* ---------- Welcome page (shown on open and after Reset demo) ---------- */
-  #welcome { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center;
+  #welcome { position: absolute; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center;
              justify-content: center; text-align: center; color: #fff; overflow: hidden; touch-action: none; user-select: none;
              background: var(--brand-bg); transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .55s; }
   #welcome[hidden] { display: none; }
@@ -150,15 +150,18 @@
   .tile .i { width: 22px; height: 22px; }
 
   /* ---------- Intro chips ---------- */
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-  .chip { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
-          text-align: left; min-height: 104px; padding: 14px; border-radius: 16px;
-          border: 1.5px solid var(--line); background: var(--card); font-weight: 600; font-size: 14px; line-height: 1.25; }
-  .chip .check { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%;
-                 display: grid; place-items: center; border: 1.5px solid var(--line); color: transparent; }
-  .chip .check .i { width: 14px; height: 14px; stroke-width: 2.5; }
-  .chip[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .chip[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  /* Icon + name in one row; the whole chip turns sage green when selected. */
+  .chip { display: flex; align-items: center; gap: 10px; text-align: left; min-height: 54px; padding: 10px 12px;
+          border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 13.5px;
+          line-height: 1.2; transition: background-color .2s, border-color .2s, color .2s, transform .12s; }
+  .chip .i { width: 22px; height: 22px; color: color-mix(in srgb, var(--c) var(--tint), var(--ink)); transition: color .2s; }
+  .chip:active { transform: scale(.97); }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .chip[aria-pressed="true"] .i { color: var(--on-accent); }
+  /* First arrival only: title and chips fade up in turn, like the welcome page. */
+  .enter > * { animation: w-rise .7s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--n, 0) * 35ms + 150ms); }
+  @media (prefers-reduced-motion: reduce) { .enter > * { animation: none; } }
   .stick { position: sticky; bottom: -28px; padding: 12px 0 28px; margin-bottom: -28px;
            background: linear-gradient(transparent, var(--paper) 35%); }
 
@@ -315,6 +318,28 @@
   .update .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .update .tags span { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--paper); color: var(--muted); }
 
+  /* ---------- Deals ---------- */
+  .deal-line { color: var(--star); font-weight: 600; }
+  .deal-line .i { color: var(--star) !important; }
+  .deal-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; border-radius: 99px;
+               padding: 4px 10px; color: #3b2a05; background: var(--star); white-space: nowrap; }
+  .deal-chip .i { width: 14px; height: 14px; }
+  .sponsor { position: absolute; top: 10px; left: 10px; z-index: 1; font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+             text-transform: uppercase; color: #fff; background: rgba(0,0,0,.45); border-radius: 99px; padding: 4px 9px; }
+  .deal-text { font-family: var(--display); font-size: 20px; font-weight: 600; color: var(--star); margin: 6px 0 2px; }
+  .dealrow { display: flex; gap: 4px; margin-top: 6px; }
+  .dealrow span { flex: 1; height: 5px; border-radius: 3px; }
+  .dealrow .on { background: var(--star); }
+  .deal-key { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .deal-key::before { content: ""; width: 14px; height: 5px; border-radius: 3px; background: var(--star); }
+  .seg { display: flex; padding: 4px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); margin: 0 0 6px; }
+  .seg button { flex: 1; min-height: 38px; border: 0; border-radius: 9px; background: none; color: var(--muted);
+                font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .map-seg { position: absolute; top: 12px; left: 16px; right: 16px; z-index: 1000; box-shadow: var(--shadow); }
+  .pin .tagged { position: absolute; bottom: -6px; left: -6px; width: 20px; height: 20px; border-radius: 50%; display: grid;
+                 place-items: center; background: var(--star); color: #3b2a05; font-size: 12px; font-weight: 800; }
+
   /* ---------- Map tab ---------- */
   #mapwrap { flex: 1; position: relative; overflow: hidden; }
   #mapwrap[hidden], main[hidden] { display: none; }
@@ -323,10 +348,10 @@
   .leaflet-container { font: inherit; background: var(--paper); }
   .leaflet-control-attribution { background: color-mix(in srgb, var(--card) 85%, transparent) !important; color: var(--muted); font-size: 10px; }
   .leaflet-control-attribution a { color: var(--muted); }
-  .map-chips { position: absolute; top: 12px; left: 0; right: 0; z-index: 1000; display: flex; gap: 8px;
+  .map-chips { position: absolute; top: 68px; left: 0; right: 0; z-index: 1000; display: flex; gap: 8px;
                overflow-x: auto; padding: 0 16px 6px; }
   .map-chips .fchip { box-shadow: var(--shadow); }
-  .locate { position: absolute; top: 64px; right: 16px; z-index: 1000; width: 44px; height: 44px; border-radius: 50%;
+  .locate { position: absolute; top: 120px; right: 16px; z-index: 1000; width: 44px; height: 44px; border-radius: 50%;
             border: 1px solid var(--line); background: var(--card); color: var(--ink); display: grid; place-items: center; box-shadow: var(--shadow); }
   #mapcard { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 1000; }
   #mapcard .card { margin: 0; box-shadow: 0 8px 30px rgba(0,0,0,.3); }
@@ -352,7 +377,7 @@
   nav button[aria-current="page"] span { background: var(--accent-soft); }
 
   /* ---------- Bottom sheet (detail and form) ---------- */
-  .scrim { position: absolute; inset: 0; background: rgba(20,24,22,.42); display: flex; align-items: flex-end; z-index: 10; }
+  .scrim { position: absolute; inset: 0; background: rgba(20,24,22,.42); display: flex; align-items: flex-end; z-index: 2000; }  /* above map controls (1000) */
   .sheet { position: relative; width: 100%; max-height: 90%; overflow-y: auto; background: var(--card);
            border-radius: 26px 26px 0 0; padding: 10px 20px 26px; }
   .sheet .hero { height: 130px; margin: -10px -20px 18px; }
@@ -377,7 +402,7 @@
   select, input { width: 100%; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; background: var(--card); }
 
   /* ---------- Toast ---------- */
-  #toast { position: absolute; left: 20px; right: 20px; bottom: 96px; z-index: 20; display: flex; align-items: center;
+  #toast { position: absolute; left: 20px; right: 20px; bottom: 96px; z-index: 2100; display: flex; align-items: center;
            justify-content: center; gap: 8px; background: var(--ink); color: var(--paper); border-radius: 14px; padding: 13px 16px;
            font-weight: 550; font-size: 14px; opacity: 0; transform: translateY(10px); transition: .2s; pointer-events: none; }
   #toast.show { opacity: 1; transform: none; }
@@ -397,6 +422,7 @@
   <!-- The map lives outside #screen so it's created once and never torn down. -->
   <section id="mapwrap" hidden>
     <div id="map" role="region" aria-label="Map of places near you"></div>
+    <div class="map-seg" id="mapseg"></div>
     <div class="map-chips" id="mapchips"></div>
     <button class="locate" data-action="locate" aria-label="Center on me"></button>
     <div id="mapcard"></div>
@@ -422,6 +448,7 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "list": "<path d=\"M3 12h.01\" /> <path d=\"M3 18h.01\" /> <path d=\"M3 6h.01\" /> <path d=\"M8 12h13\" /> <path d=\"M8 18h13\" /> <path d=\"M8 6h13\" />",
   "chevron-up": "<path d=\"m18 15-6-6-6 6\" />",
   "megaphone": "<path d=\"m3 11 18-5v12L3 14v-3z\" /> <path d=\"M11.6 16.8a3 3 0 1 1-5.8-1.6\" />",
   "gift": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />",
@@ -496,6 +523,7 @@ function freshState() {
     placeFilter: null,      // Community place filter (from "See groups going")
     mapFilter: "quiet",     // Map chips: all, favs, quiet, picks, biz
     mapSel: null,           // selected map pin: { kind: "place" | "biz", id }
+    discoverView: "list",   // Discover shows a list or the map
   };
 }
 
@@ -527,20 +555,30 @@ function bestTime(p) {
   return ampm(a) === ampm(b) ? `${h12(a)}–${h12(b)} ${ampm(b)}` : `${h12(a)} ${ampm(a)}–${h12(b)} ${ampm(b)}`;
 }
 
+// Off-peak deals: a discount during a place's quiet hours.
+const hourRange = (a, b) => ampm(a) === ampm(b) ? `${h12(a)}–${h12(b)} ${ampm(b)}` : `${h12(a)} ${ampm(a)}–${h12(b)} ${ampm(b)}`;
+const dealOn = (p) => p.deal && HOUR >= p.deal.start && HOUR < p.deal.end;
+const dealWhen = (p) => dealOn(p) ? `On now until ${h12(p.deal.end)} ${ampm(p.deal.end)}` : `Today ${hourRange(p.deal.start, p.deal.end)}`;
+const dealLine = (p) => p.deal ? `<div class="deal-line">${icon("tag")} ${esc(p.deal.text)} · ${dealWhen(p)}</div>` : "";
+// Deals happening now come first, then the rest by start time.
+const byDeal = (a, b) => (dealOn(b) - dealOn(a)) || a.deal.start - b.deal.start;
+
 // Open places sorted quietest first; closed ones go last.
 const byQuiet = (a, b) => (busyNow(a) || 999) - (busyNow(b) || 999);
 
 // ---------- Screens ----------
 function renderIntro() {
-  const n = S.interests.size;
+  const n = S.interests.size, enter = !S.introShown ? "enter" : "";
+  S.introShown = true;  // animate only the first time, not on every tap
   return `
-    <h1>What do you like to do?</h1>
-    <p class="sub">Pick as many as you like. We'll find spots near you and the best time to go.</p>
-    <div class="grid">
-      ${D.activities.map((a) => `
-        <button class="chip" data-action="interest" data-id="${a.id}" aria-pressed="${S.interests.has(a.id)}">
-          <span class="tile" style="--c:${a.color}">${icon(a.icon)}</span>${a.name}
-          <span class="check">${icon("check")}</span>
+    <div class="${enter}">
+      <h1>What do you like to do?</h1>
+      <p class="sub" style="--n:2">Pick as many as you like. We'll find spots near you and the best time to go.</p>
+    </div>
+    <div class="grid ${enter}">
+      ${D.activities.map((a, i) => `
+        <button class="chip" data-action="interest" data-id="${a.id}" aria-pressed="${S.interests.has(a.id)}" style="--c:${a.color};--n:${i + 4}">
+          ${icon(a.icon)}${a.name}
         </button>`).join("")}
     </div>
     <div class="stick">
@@ -554,10 +592,12 @@ function renderIntro() {
 const GOALS = {
   quiet:  { icon: "leaf",    color: "#2e7d4f", title: "Avoid the crowds",      label: "Avoiding crowds",
             desc: "Show me quiet spots and the best time to go so I skip the lines." },
-  social: { icon: "users",   color: "#234e70", title: "Find my people",        label: "Finding people",
-            desc: "Show me groups heading out so I can meet people who like what I like." },
+  deals:  { icon: "tag",     color: "#b77f34", title: "Get off-peak deals",    label: "Getting deals",
+            desc: "Show me discounts for going when it's quiet." },
   new:    { icon: "compass", color: "#98577f", title: "Find new things to do", label: "Trying new things",
             desc: "Suggest activities I haven't tried yet, from climbing gyms to concerts." },
+  social: { icon: "users",   color: "#234e70", title: "Find my people",        label: "Finding people",
+            desc: "Show me groups heading out so I can meet people who like what I like." },
 };
 function renderGoal() {
   const n = S.goals.size;
@@ -578,7 +618,8 @@ function renderGoal() {
 const groupsAt = (p) => S.groups.filter((g) => g.place === p.id).length;
 
 function renderHome() {
-  const g = S.goals, social = g.has("social"), fresh = g.has("new");
+  const g = S.goals, social = g.has("social"), fresh = g.has("new"), deals = g.has("deals");
+  const dealPlaces = D.places.filter((p) => p.deal).sort(byDeal);
   // Quietest first, unless you only care about groups: then spots with groups come first.
   const picks = D.places.filter((p) => S.interests.has(p.activity))
     .sort((a, b) => (social && !g.has("quiet") ? groupsAt(b) - groupsAt(a) : 0) || byQuiet(a, b));
@@ -593,6 +634,7 @@ function renderHome() {
     <p class="sub">${[
       (g.has("quiet") || !g.size) && `${quiet} of your ${picks.length} spots ${quiet === 1 ? "is" : "are"} quiet right now.`,
       social && (mine.length ? `${mine.length} group${mine.length === 1 ? " is" : "s are"} heading out for your activities this week.` : "No groups for your activities yet, but here are some popular ones."),
+      deals && `${dealPlaces.filter(dealOn).length || "No"} off-peak deal${dealPlaces.filter(dealOn).length === 1 ? " is" : "s are"} on right now.`,
       fresh && newIdeas.length && `${newIdeas.length} new things to try nearby.`,
     ].filter(Boolean).join(" ")}</p>
     <button class="mode" data-action="editgoals">${icon("pencil")} ${[...g].map((id) => GOALS[id].label).join(" · ") || "Set what you're looking for"} · Edit</button>
@@ -600,6 +642,9 @@ function renderHome() {
       <h2>Groups for you</h2>
       ${(mine.length ? mine : S.groups).slice(0, 3).map(groupCard).join("")}
       <button class="btn ghost" data-action="tab" data-id="community">See all groups</button>` : ""}
+    ${deals ? `
+      <h2>Off-peak deals</h2>
+      <div class="feat-row">${dealPlaces.map(dealCard).join("")}</div>` : ""}
     ${fresh && newIdeas.length ? `
       <h2>New for you</h2>
       <div class="saved-row">
@@ -644,6 +689,7 @@ const placeCard = (p) => `
         <div>${icon("cloud-sun")} ${esc(p.conditions)}</div>
         <div>${icon("ticket")} ${esc(p.price)}</div>
         <div class="best">${icon("clock")} Best time today: ${bestTime(p)}</div>
+        ${dealLine(p)}
         ${S.goals.has("social") && groupsAt(p) ? `<div>${icon("users")} ${groupsAt(p)} group${groupsAt(p) === 1 ? "" : "s"} going</div>` : ""}
       </div>
     </button>
@@ -662,7 +708,7 @@ function ideaCard(p, cls) {
           <div class="title">${esc(p.name)}</div>
           <div class="meta">${esc(p.town)} · ${p.miles} mi · ${esc(p.price)}</div>
           <p class="pitch">${esc(p.pitch)}</p>
-          ${badge(busyNow(p))}
+          <div class="row" style="gap:8px;flex-wrap:wrap">${badge(busyNow(p))}${p.deal ? `<span class="deal-chip">${icon("tag")} ${esc(p.deal.text)}</span>` : ""}</div>
         </div>
       </button>
       <button class="heart" data-action="save" data-id="${p.id}" aria-pressed="${saved}"
@@ -670,16 +716,41 @@ function ideaCard(p, cls) {
     </div>`;
 }
 
-// Both sections sort quietest first, so less busy options always lead.
+// A deal card: big discount, when it runs, and current busyness. Sponsored ones are labeled.
+const dealCard = (p) => `
+  <div class="feat">
+    <button class="open" data-action="detail" data-id="${p.id}">
+      ${p.deal.sponsored ? `<span class="sponsor">Sponsored</span>` : ""}
+      ${hero(p)}
+      <div class="body">
+        <div class="eyebrow" ${tint(p)}>${act(p.activity).name}</div>
+        <div class="title">${esc(p.name)}</div>
+        <div class="deal-text">${esc(p.deal.text)}</div>
+        <div class="meta">${dealWhen(p)} · ${p.miles} mi</div>
+        <div class="row" style="margin-top:10px;gap:8px">${badge(busyNow(p))}${dealOn(p) ? `<span class="deal-chip">${icon("tag")} Deal on now</span>` : ""}</div>
+      </div>
+    </button>
+  </div>`;
+
+// List | Map switch, shown at the top of Discover in both views.
+const segHTML = () => `<div class="seg" role="group" aria-label="View">
+  ${[["list", "list", "List"], ["map", "map", "Map"]].map(([id, ic, label]) =>
+    `<button data-action="dview" data-id="${id}" aria-pressed="${S.discoverView === id}">${icon(ic)} ${label}</button>`).join("")}</div>`;
+
+// Discover: sponsored deals on top, then featured and recommended, all quietest first.
 // Recommended favors activities OUTSIDE your interests (falls back to all).
 function renderDiscover() {
+  const sponsored = D.places.filter((p) => p.deal?.sponsored).sort(byDeal);
   const featured = D.places.filter((p) => p.featured).sort(byQuiet);
   const rest = D.places.filter((p) => !p.featured);
   const outside = rest.filter((p) => !S.interests.has(p.activity));
   const recs = (outside.length ? outside : rest).sort(byQuiet);
   return `
-    <h1>Try something new</h1>
-    <p class="sub">Quiet spots first. Save the ones you want to try.</p>
+    <h1>Find new things to do</h1>
+    <p class="sub">Deals for going when it's quiet, and ideas you haven't tried.</p>
+    ${segHTML()}
+    <h2>Sponsored deals</h2>
+    <div class="feat-row">${sponsored.map(dealCard).join("")}</div>
     <h2>Featured</h2>
     <div class="feat-row">${featured.map((p) => ideaCard(p, "feat")).join("")}</div>
     <h2>Recommended for you</h2>
@@ -809,12 +880,13 @@ function groupCard(g) {
 // ---------- Map tab ----------
 // Pins: places are ringed by busyness color; businesses are square and gray.
 const BIZ_ICONS = { Coffee: "coffee", Food: "utensils", "Gear rental": "backpack" };
-const MAP_CHIPS = [["all", "All"], ["favs", "Favorites"], ["quiet", "Quiet now"], ["picks", "Your picks"], ["biz", "Food & gear"]];
+const MAP_CHIPS = [["all", "All"], ["deals", "Deals"], ["favs", "Favorites"], ["quiet", "Quiet now"], ["picks", "Your picks"], ["biz", "Food & gear"]];
 const milesFromYou = (o) => Math.hypot((o.lat - D.you.lat) * 69, (o.lng - D.you.lng) * 53).toFixed(1);
 let map, tiles, pins;
 
 // Shows the map tab: builds the map the first time, then just updates tiles and pins.
 function showMap() {
+  $("#mapseg").innerHTML = segHTML();
   $("#mapchips").innerHTML = MAP_CHIPS.map(([id, label]) =>
     `<button class="fchip" data-action="mapfilter" data-id="${id}" aria-pressed="${S.mapFilter === id}">${label}</button>`).join("");
   if (!window.L) { $("#map").innerHTML = `<p class="empty">The map needs an internet connection.</p>`; return; }
@@ -840,10 +912,10 @@ function showMap() {
     .on("click", () => { S.mapSel = sel; drawMapCard(); }).addTo(pins);
   const f = S.mapFilter;
   if (f !== "biz") D.places
-    .filter((p) => f === "all" || (f === "favs" && S.favs.includes(p.id)) ||
+    .filter((p) => f === "all" || (f === "favs" && S.favs.includes(p.id)) || (f === "deals" && p.deal) ||
       (f === "quiet" && level(busyNow(p)).cls === "quiet") || (f === "picks" && S.interests.has(p.activity)))
     .forEach((p) => { const fav = S.favs.includes(p.id);  // favorites get a bigger pin with a gold star
-      pin(p, `<div class="pin ${fav ? "fav" : ""}" style="--pin:var(--${level(busyNow(p)).cls})">${icon(act(p.activity).icon)}</div>`, { kind: "place", id: p.id }, fav); });
+      pin(p, `<div class="pin ${fav ? "fav" : ""}" style="--pin:var(--${level(busyNow(p)).cls})">${icon(act(p.activity).icon)}${p.deal ? `<span class="tagged">%</span>` : ""}</div>`, { kind: "place", id: p.id }, fav); });
   if (f === "favs" && !S.favs.length) toast("No favorites yet. Tap the star on any spot.");
   if (f === "all" || f === "biz") D.businesses
     .forEach((b, i) => pin(b, `<div class="pin biz">${icon(BIZ_ICONS[b.type] || "store")}</div>`, { kind: "biz", id: i }));
@@ -865,6 +937,7 @@ function drawMapCard() {
         <div class="facts">
           <div>${icon("ticket")} ${esc(p.price)}</div>
           <div class="best">${icon("clock")} Best time today: ${bestTime(p)}</div>
+          ${dealLine(p)}
         </div>
         <div class="actions">
           <button class="btn small" data-action="detail" data-id="${p.id}">Details</button>
@@ -906,11 +979,14 @@ function openDetail(id) {
         <div class="chart" aria-label="Busyness by hour, 8 AM to 10 PM">
           ${s.map((v, i) => `<div class="bar ${level(v).bar} ${i === NOW ? "now" : ""}" style="height:${v}%" title="${h12(i + 8)} ${ampm(i + 8)}: ${level(v).label}"></div>`).join("")}
         </div>
+        ${p.deal ? `<div class="dealrow" aria-hidden="true">${s.map((v, i) => `<span class="${i + 8 >= p.deal.start && i + 8 < p.deal.end ? "on" : ""}"></span>`).join("")}</div>` : ""}
         <div class="axis"><span>8a</span><span>11a</span><span>2p</span><span>5p</span><span>8p</span><span>10p</span></div>
+        ${p.deal ? `<div class="deal-key">Deal hours: ${esc(p.deal.text)}, ${hourRange(p.deal.start, p.deal.end)}</div>` : ""}
         <dl class="info">
           <dt>${icon("clock")} Best time</dt><dd>${bestTime(p)}</dd>
           <dt>${icon("cloud-sun")} Conditions</dt><dd>${esc(p.conditions)}</dd>
           <dt>${icon("ticket")} Price</dt><dd>${esc(p.price)}</dd>
+          ${p.deal ? `<dt>${icon("tag")} Deal</dt><dd class="deal-line">${esc(p.deal.text)}<div class="meta">${dealWhen(p)}</div></dd>` : ""}
           ${(() => { const u = S.updates.find((x) => x.place === p.id); return u ? `<dt>${icon("megaphone")} Latest</dt>
             <dd>${LEVELS.find(([id]) => id === u.busy)[1]}${u.tags.length ? ` · ${esc(u.tags.join(", "))}` : ""}
               <div class="meta">${esc(u.who)}, ${esc(u.ago.toLowerCase())}</div></dd>` : ""; })()}
@@ -1023,12 +1099,13 @@ function toast(msg) {
 }
 
 // ---------- Render ----------
-const TABS = [["home", "house", "Home"], ["discover", "compass", "Discover"], ["update", "megaphone", "Update"], ["map", "map", "Map"], ["community", "users", "Community"]];
+const TABS = [["home", "house", "Home"], ["discover", "compass", "Discover"], ["update", "megaphone", "Update"], ["community", "users", "Community"]];
 function render() {
   const screens = { intro: renderIntro, goal: renderGoal, update: renderUpdate, home: renderHome, discover: renderDiscover, community: renderCommunity };
-  $("#screen").hidden = S.tab === "map";
-  $("#mapwrap").hidden = S.tab !== "map";
-  if (S.tab === "map") showMap(); else $("#screen").innerHTML = screens[S.tab]();
+  const onMap = S.tab === "discover" && S.discoverView === "map";  // the map lives inside Discover
+  $("#screen").hidden = onMap;
+  $("#mapwrap").hidden = !onMap;
+  if (onMap) showMap(); else $("#screen").innerHTML = screens[S.tab]();
   if (S.tab === "update") bindUpdateForm();
   $("#tabs").hidden = S.tab === "intro" || S.tab === "goal";
   $("#tabs").innerHTML = TABS.map(([id, ic, label]) =>
@@ -1062,8 +1139,9 @@ document.addEventListener("click", (e) => {
     case "theme":
       document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
       setThemeButton();
-      if (S.tab === "map") render();  // swap map tiles to match
+      if (!$("#mapwrap").hidden) render();  // swap map tiles to match
       break;
+    case "dview": S.discoverView = id; render(); break;
     case "mapfilter": S.mapFilter = id; S.mapSel = null; render(); break;
     case "locate": map?.setView([D.you.lat, D.you.lng], 13); break;
     case "deal": toast(`Deal saved: ${D.businesses[id].deal}`); break;
