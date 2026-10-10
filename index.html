@@ -411,13 +411,13 @@ function freshState() {
   return {
     tab: "intro",
     interests: new Set(),
-    goals: new Set(),       // onboarding answers: "quiet", "social", "new" (any combination)
+    goals: new Set(["quiet"]), // onboarding answers: "quiet", "social", "new" (any mix). Avoid crowds is on by default.
     saved: [],              // place ids, newest first ("Saved to try")
     favs: [],               // starred place ids, pinned to the top of Home
     groups: D.groups.map((g) => ({ ...g, chat: [...(g.chat || [])], joined: false })),
     filter: "all",          // Community activity filter
     placeFilter: null,      // Community place filter (from "See groups going")
-    mapFilter: "all",       // Map chips: all, quiet, picks, biz
+    mapFilter: "quiet",     // Map chips: all, favs, quiet, picks, biz
     mapSel: null,           // selected map pin: { kind: "place" | "biz", id }
   };
 }
