@@ -126,7 +126,12 @@
   .goal-opt .tile .i { width: 26px; height: 26px; }
   .goal-opt .title { font-family: var(--serif); font-size: 21px; font-weight: 600; margin-bottom: 4px; }
   .goal-opt p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
-  .goal-opt:active { border-color: var(--accent); }
+  .goal-opt { position: relative; padding-right: 52px; }
+  .goal-opt .check { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; border-radius: 50%;
+                     display: grid; place-items: center; border: 1.5px solid var(--line); color: transparent; }
+  .goal-opt .check .i { width: 14px; height: 14px; stroke-width: 2.5; }
+  .goal-opt[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .goal-opt[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted);
           padding: 6px 0; margin: 0 0 6px; font-size: 14px; }
   .mode { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; margin: -6px 0 6px;
@@ -346,9 +351,9 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "pencil": "<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />",
   "leaf": "<path d=\"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z\" /> <path d=\"M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12\" />",
   "chevron-left": "<path d=\"m15 18-6-6 6-6\" />",
-  "arrow-left-right": "<path d=\"M8 3 4 7l4 4\" /> <path d=\"M4 7h16\" /> <path d=\"m16 21 4-4-4-4\" /> <path d=\"M20 17H4\" />",
   "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />",
   "map": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\" /> <path d=\"M15 5.764v15\" /> <path d=\"M9 3.236v15\" />",
   "coffee": "<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />",
@@ -406,7 +411,7 @@ function freshState() {
   return {
     tab: "intro",
     interests: new Set(),
-    goal: null,             // onboarding answer: "quiet" (avoid crowds) or "social" (find people)
+    goals: new Set(),       // onboarding answers: "quiet", "social", "new" (any combination)
     saved: [],              // place ids, newest first ("Saved to try")
     favs: [],               // starred place ids, pinned to the top of Home
     groups: D.groups.map((g) => ({ ...g, chat: [...(g.chat || [])], joined: false })),
@@ -468,31 +473,39 @@ function renderIntro() {
     </div>`;
 }
 
-// Onboarding step 2: what matters more? Tailors Home and the Map.
+// Onboarding step 2: what are you looking for? Pick any. Tailors Home and the Map.
 const GOALS = {
-  quiet:  { icon: "leaf",  color: "#2e7d4f", title: "Avoid the crowds", label: "Avoiding crowds",
+  quiet:  { icon: "leaf",    color: "#2e7d4f", title: "Avoid the crowds",      label: "Avoiding crowds",
             desc: "Show me quiet spots and the best time to go so I skip the lines." },
-  social: { icon: "users", color: "#234e70", title: "Find my people",   label: "Finding people",
+  social: { icon: "users",   color: "#234e70", title: "Find my people",        label: "Finding people",
             desc: "Show me groups heading out so I can meet people who like what I like." },
+  new:    { icon: "compass", color: "#98577f", title: "Find new things to do", label: "Trying new things",
+            desc: "Suggest activities I haven't tried yet, from climbing gyms to concerts." },
 };
 function renderGoal() {
+  const n = S.goals.size;
   return `
     <button class="back" data-action="back">${icon("chevron-left")} Back</button>
-    <h1>What matters more to you?</h1>
-    <p class="sub">We'll set up the app around it. You can switch anytime.</p>
+    <h1>What are you looking for?</h1>
+    <p class="sub">Pick any that fit. We'll set up the app around them, and you can change them anytime.</p>
     ${Object.entries(GOALS).map(([id, g]) => `
-      <button class="goal-opt" data-action="goal" data-id="${id}">
+      <button class="goal-opt" data-action="goal" data-id="${id}" aria-pressed="${S.goals.has(id)}">
         <span class="tile" style="--c:${g.color}">${icon(g.icon)}</span>
         <span><div class="title">${g.title}</div><p>${g.desc}</p></span>
-      </button>`).join("")}`;
+        <span class="check">${icon("check")}</span>
+      </button>`).join("")}
+    <div class="stick">
+      <button class="btn" data-action="goaldone" ${n ? "" : "disabled"}>${n ? "Continue" : "Pick at least one"}</button>
+    </div>`;
 }
 const groupsAt = (p) => S.groups.filter((g) => g.place === p.id).length;
 
 function renderHome() {
-  const social = S.goal === "social";
-  // Social: places with groups come first. Quiet: quietest first.
+  const g = S.goals, social = g.has("social"), fresh = g.has("new");
+  // Quietest first, unless you only care about groups: then spots with groups come first.
   const picks = D.places.filter((p) => S.interests.has(p.activity))
-    .sort((a, b) => (social ? groupsAt(b) - groupsAt(a) : 0) || byQuiet(a, b));
+    .sort((a, b) => (social && !g.has("quiet") ? groupsAt(b) - groupsAt(a) : 0) || byQuiet(a, b));
+  const newIdeas = D.places.filter((p) => !S.interests.has(p.activity)).sort(byQuiet).slice(0, 6);
   const mine = S.groups.filter((g) => S.interests.has(place(g.place).activity));
   const quiet = picks.filter((p) => level(busyNow(p)).cls === "quiet").length;
   const greet = HOUR < 12 ? "Good morning" : HOUR < 18 ? "Good afternoon" : "Good evening";
@@ -500,14 +513,26 @@ function renderHome() {
   const favs = S.favs.map(place);
   return `
     <h1>${greet}</h1>
-    <p class="sub">${social
-      ? (mine.length ? `${mine.length} group${mine.length === 1 ? " is" : "s are"} heading out for your activities this week.` : "No groups for your activities yet. Here are some popular ones.")
-      : `${quiet} of your ${picks.length} spots ${quiet === 1 ? "is" : "are"} quiet right now.`}</p>
-    <button class="mode" data-action="mode">${icon("arrow-left-right")} ${GOALS[S.goal || "quiet"].label} · Switch</button>
+    <p class="sub">${[
+      (g.has("quiet") || !g.size) && `${quiet} of your ${picks.length} spots ${quiet === 1 ? "is" : "are"} quiet right now.`,
+      social && (mine.length ? `${mine.length} group${mine.length === 1 ? " is" : "s are"} heading out for your activities this week.` : "No groups for your activities yet, but here are some popular ones."),
+      fresh && newIdeas.length && `${newIdeas.length} new things to try nearby.`,
+    ].filter(Boolean).join(" ")}</p>
+    <button class="mode" data-action="editgoals">${icon("pencil")} ${[...g].map((id) => GOALS[id].label).join(" · ") || "Set what you're looking for"} · Edit</button>
     ${social ? `
       <h2>Groups for you</h2>
       ${(mine.length ? mine : S.groups).slice(0, 3).map(groupCard).join("")}
       <button class="btn ghost" data-action="tab" data-id="community">See all groups</button>` : ""}
+    ${fresh && newIdeas.length ? `
+      <h2>New for you</h2>
+      <div class="saved-row">
+        ${newIdeas.map((p) => `
+          <button class="mini" data-action="detail" data-id="${p.id}">
+            ${hero(p)}
+            <div class="body"><div class="eyebrow" ${tint(p)}>${act(p.activity).name}</div><div class="title">${esc(p.name)}</div>${badge(busyNow(p))}</div>
+          </button>`).join("")}
+      </div>
+      <button class="btn ghost" data-action="tab" data-id="discover" style="margin-top:10px">Explore more ideas</button>` : ""}
     ${saved.length ? `
       <h2>Saved to try</h2>
       <div class="saved-row">
@@ -542,7 +567,7 @@ const placeCard = (p) => `
         <div>${icon("cloud-sun")} ${esc(p.conditions)}</div>
         <div>${icon("ticket")} ${esc(p.price)}</div>
         <div class="best">${icon("clock")} Best time today: ${bestTime(p)}</div>
-        ${S.goal === "social" && groupsAt(p) ? `<div>${icon("users")} ${groupsAt(p)} group${groupsAt(p) === 1 ? "" : "s"} going</div>` : ""}
+        ${S.goals.has("social") && groupsAt(p) ? `<div>${icon("users")} ${groupsAt(p)} group${groupsAt(p) === 1 ? "" : "s"} going</div>` : ""}
       </div>
     </button>
     ${starBtn(p)}
@@ -861,13 +886,12 @@ document.addEventListener("click", (e) => {
     case "interest": S.interests.has(id) ? S.interests.delete(id) : S.interests.add(id); render(); break;
     case "start": goTab("goal"); break;
     case "back": goTab("intro"); break;
-    case "goal":
-    case "mode":
-      S.goal = el.dataset.action === "goal" ? id : S.goal === "social" ? "quiet" : "social";
-      S.mapFilter = S.goal === "quiet" ? "quiet" : "all";  // map opens on what you care about
-      if (el.dataset.action === "mode") toast(`Switched to ${GOALS[S.goal].label.toLowerCase()}.`);
+    case "goal": S.goals.has(id) ? S.goals.delete(id) : S.goals.add(id); render(); break;
+    case "goaldone":
+      S.mapFilter = S.goals.has("quiet") ? "quiet" : "all";  // map opens on what you care about
       goTab("home");
       break;
+    case "editgoals": goTab("goal"); break;
     case "theme":
       document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
       setThemeButton();
