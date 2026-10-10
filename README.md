@@ -1,4 +1,6 @@
-# Activitree
+# NOLA
+
+_Know where to go._
 
 Clickable, mobile-first prototype for customer interviews: find fun things to
 do nearby in Utah County and know the best time to go. Sample data only, with

@@ -4,8 +4,9 @@
 // ============================================================
 
 window.DATA = {
-  // Working name shown in the header.
-  appName: "Activitree",
+  // Name and tagline shown in the header.
+  appName: "NOLA",
+  tagline: "Know where to go",
 
   // The hour the demo pretends it is (0-23). null = use the phone's real clock.
   // Tip: set 15 for an afternoon demo so busyness looks interesting.
@@ -119,7 +120,7 @@ window.DATA = {
   businesses: [
     { name: "Canyon Grind Coffee",    type: "Coffee",      lat: 40.2335, lng: -111.6560, note: "Espresso and breakfast burritos", deal: "Free pastry with any drink" },
     { name: "Trailhead Tacos",        type: "Food",        lat: 40.2475, lng: -111.6385, note: "Quick bites before a hike",       deal: "$2 off after 8 PM" },
-    { name: "Center Street Pizza",    type: "Food",        lat: 40.2340, lng: -111.6620, note: "Slices until midnight",           deal: "10% off with Activitree" },
+    { name: "Center Street Pizza",    type: "Food",        lat: 40.2340, lng: -111.6620, note: "Slices until midnight",           deal: "10% off with NOLA" },
     { name: "Summit Gear Rentals",    type: "Gear rental", lat: 40.2620, lng: -111.6550, note: "Skis, boards, and climbing shoes", deal: "20% off weekday rentals" },
     { name: "Lakeside Paddle Co.",    type: "Gear rental", lat: 40.2385, lng: -111.7300, note: "Paddleboards and kayaks by the hour", deal: "Second hour free" },
     { name: "Orem Bike Shop",         type: "Gear rental", lat: 40.2960, lng: -111.6900, note: "E-bike and mountain bike rentals", deal: "$5 off half-day rentals" },
