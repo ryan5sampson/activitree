@@ -66,7 +66,7 @@
   /* ---------- Phone frame: full screen on phones, framed on laptops ---------- */
   #app {
     position: relative; display: flex; flex-direction: column;
-    height: 100dvh; overflow: hidden; background: var(--paper);
+    height: 100dvh; overflow: clip; background: var(--paper);  /* clip: never scrolls sideways */
   }
   @media (min-width: 500px) {
     body { background: var(--frame); display: grid; place-items: center; }
@@ -245,6 +245,33 @@
                     background: var(--star) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231b201d'%3E%3Cpath d='M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z'/%3E%3C/svg%3E") center/12px no-repeat; }
   .pin { position: relative; }
 
+  /* ---------- Update tab ---------- */
+  .points { padding: 18px; border-radius: 18px; margin-bottom: 8px; color: var(--on-accent);
+            background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #000)); }
+  .points .big { font-family: var(--serif); font-size: 40px; font-weight: 600; line-height: 1; }
+  .points .label { font-size: 13px; opacity: .8; }
+  .bar-track { height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--on-accent) 20%, transparent); margin: 14px 0 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; background: var(--on-accent); }
+  .reward { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 0;
+            border: 0; border-bottom: 1px solid var(--line); background: none; font-size: 14px; }
+  .reward:last-child { border-bottom: 0; }
+  .reward .pts { margin-left: auto; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .reward.locked { color: var(--muted); }
+  .reward:not(.locked) .i { color: var(--star); }
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choices label { position: relative; margin: 0; color: var(--ink); cursor: pointer; }
+  .choices input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }
+  .choices .fchip:has(input:checked) { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .choices .fchip:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .choices .fchip.lvl::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--dot); }
+  .choices .fchip.lvl:has(input:checked) { background: var(--bg); border-color: var(--dot); color: var(--dot); }
+  textarea { width: 100%; min-height: 80px; border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+             background: var(--card); color: var(--ink); font: inherit; resize: vertical; }
+  .rules { color: var(--muted); font-size: 12.5px; text-align: center; margin: 8px 0 0; }
+  .update .note { margin: 8px 0 0; font-size: 14px; }
+  .update .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .update .tags span { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--paper); color: var(--muted); }
+
   /* ---------- Map tab ---------- */
   #mapwrap { flex: 1; position: relative; overflow: hidden; }
   #mapwrap[hidden], main[hidden] { display: none; }
@@ -351,6 +378,9 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "megaphone": "<path d=\"m3 11 18-5v12L3 14v-3z\" /> <path d=\"M11.6 16.8a3 3 0 1 1-5.8-1.6\" />",
+  "gift": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />",
+  "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /> <path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />",
   "pencil": "<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />",
   "leaf": "<path d=\"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z\" /> <path d=\"M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12\" />",
   "chevron-left": "<path d=\"m15 18-6-6 6-6\" />",
@@ -414,6 +444,9 @@ function freshState() {
     goals: new Set(["quiet"]), // onboarding answers: "quiet", "social", "new" (any mix). Avoid crowds is on by default.
     saved: [],              // place ids, newest first ("Saved to try")
     favs: [],               // starred place ids, pinned to the top of Home
+    points: D.startingPoints,
+    updates: D.updates.map((u) => ({ ...u })),  // newest first
+    updatePlace: null,      // preselected place on the Update form
     groups: D.groups.map((g) => ({ ...g, chat: [...(g.chat || [])], joined: false })),
     filter: "all",          // Community activity filter
     placeFilter: null,      // Community place filter (from "See groups going")
@@ -627,6 +660,85 @@ function renderCommunity() {
     ${list.map(groupCard).join("")}`;
 }
 
+// ---------- Update tab: report conditions, earn points ----------
+const LEVELS = [["quiet", "Quiet"], ["moderate", "Moderate"], ["busy", "Busy"]];
+const pointsForUpdate = (f) => (f.busy ? D.pointsFor.busyness : 0)
+  + (f.tags.length ? D.pointsFor.conditions : 0) + (f.note ? D.pointsFor.note : 0);
+const readUpdateForm = () => { const fd = new FormData($("#updateform"));
+  return { place: fd.get("place"), busy: fd.get("busy"), tags: fd.getAll("tags"), note: (fd.get("note") || "").trim() }; };
+
+// One update in the feed.
+const updateCard = (u) => { const p = place(u.place), l = LEVELS.find(([id]) => id === u.busy);
+  return `
+  <div class="card update">
+    <div class="row">${tile(p)}
+      <div class="grow"><div class="title">${esc(p.name)}</div><div class="meta">${esc(u.who)} · ${esc(u.ago)}</div></div>
+      <span class="badge ${u.busy}">${l[1]}</span></div>
+    ${u.note ? `<p class="note">"${esc(u.note)}"</p>` : ""}
+    ${u.tags.length ? `<div class="tags">${u.tags.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : ""}
+  </div>`; };
+
+function renderUpdate() {
+  const next = D.rewards.find((r) => r.points > S.points);
+  const prev = [...D.rewards].reverse().find((r) => r.points <= S.points)?.points || 0;
+  const pct = next ? Math.round(((S.points - prev) / (next.points - prev)) * 100) : 100;
+  const here = S.updatePlace || [...D.places].sort((a, b) => milesFromYou(a) - milesFromYou(b))[0].id;  // nearest spot
+  return `
+    <h1>Share an update</h1>
+    <p class="sub">Tell people what it's like right now and earn points toward rewards.</p>
+    <div class="points">
+      <div class="label">Your points</div>
+      <div class="big">${S.points}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="label">${next ? `${next.points - S.points} points to ${esc(next.name)}` : "You've unlocked every reward"}</div>
+    </div>
+
+    <form id="updateform">
+      <label for="u-place">Where are you?</label>
+      <select id="u-place" name="place">${D.places.map((p) => `<option value="${p.id}" ${p.id === here ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select>
+      <label>How busy is it?</label>
+      <div class="choices">
+        ${LEVELS.map(([id, name]) => `<label class="fchip lvl" style="--dot:var(--${id});--bg:var(--${id}-bg)">
+          <input type="radio" name="busy" value="${id}" required>${name}</label>`).join("")}
+      </div>
+      <label>Conditions <span style="font-weight:400">(tap any)</span></label>
+      <div class="choices">
+        ${D.conditionTags.map((t) => `<label class="fchip"><input type="checkbox" name="tags" value="${esc(t)}">${esc(t)}</label>`).join("")}
+      </div>
+      <label for="u-note">Anything else? <span style="font-weight:400">(optional)</span></label>
+      <textarea id="u-note" name="note" maxlength="140" placeholder="Parking lot is almost full, bring a jacket..."></textarea>
+      <div style="margin-top:18px"><button class="btn" id="u-submit">Post update</button></div>
+      <p class="rules">Busyness +${D.pointsFor.busyness} · Conditions +${D.pointsFor.conditions} · Note +${D.pointsFor.note}</p>
+    </form>
+
+    <h2>Rewards</h2>
+    <div class="card" style="padding:4px 16px">
+      ${D.rewards.map((r, i) => `<button class="reward ${S.points >= r.points ? "" : "locked"}" data-action="reward" data-id="${i}">
+        ${icon(S.points >= r.points ? "gift" : "lock")} ${esc(r.name)}<span class="pts">${S.points >= r.points ? "Unlocked" : `${r.points} pts`}</span></button>`).join("")}
+    </div>
+
+    <h2>Recent updates</h2>
+    ${S.updates.map(updateCard).join("")}`;
+}
+
+// Wire up the Update form after it renders: live points preview and submit.
+function bindUpdateForm() {
+  const form = $("#updateform");
+  if (!form) return;
+  const preview = () => { const n = pointsForUpdate(readUpdateForm()); $("#u-submit").textContent = n ? `Post update · +${n} points` : "Post update"; };
+  form.oninput = preview;
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const u = readUpdateForm(), earned = pointsForUpdate(u), before = S.points;
+    S.updates.unshift({ who: "You", ago: "Just now", ...u });
+    S.points += earned;
+    S.updatePlace = null;
+    const unlocked = D.rewards.find((r) => r.points > before && r.points <= S.points);
+    render(); $("#screen").scrollTop = 0;
+    toast(unlocked ? `+${earned} points. You unlocked: ${unlocked.name}!` : `+${earned} points. Thanks for the update!`);
+  };
+}
+
 // One group card (used on Community and on Home in "Find my people" mode).
 function groupCard(g) {
   const p = place(g.place), i = S.groups.indexOf(g);
@@ -755,10 +867,14 @@ function openDetail(id) {
           <dt>${icon("clock")} Best time</dt><dd>${bestTime(p)}</dd>
           <dt>${icon("cloud-sun")} Conditions</dt><dd>${esc(p.conditions)}</dd>
           <dt>${icon("ticket")} Price</dt><dd>${esc(p.price)}</dd>
+          ${(() => { const u = S.updates.find((x) => x.place === p.id); return u ? `<dt>${icon("megaphone")} Latest</dt>
+            <dd>${LEVELS.find(([id]) => id === u.busy)[1]}${u.tags.length ? ` · ${esc(u.tags.join(", "))}` : ""}
+              <div class="meta">${esc(u.who)}, ${esc(u.ago.toLowerCase())}</div></dd>` : ""; })()}
         </dl>
         <div class="stack">
           <button class="btn" data-action="directions">${icon("navigation")} Get directions</button>
           <button class="btn ghost" data-action="groupsat" data-id="${p.id}">${icon("users")} See groups going</button>
+          <button class="btn ghost" data-action="updatehere" data-id="${p.id}">${icon("megaphone")} Post an update here</button>
         </div>
       </div>
     </div>`;
@@ -863,12 +979,13 @@ function toast(msg) {
 }
 
 // ---------- Render ----------
-const TABS = [["home", "house", "Home"], ["discover", "compass", "Discover"], ["map", "map", "Map"], ["community", "users", "Community"]];
+const TABS = [["home", "house", "Home"], ["discover", "compass", "Discover"], ["update", "megaphone", "Update"], ["map", "map", "Map"], ["community", "users", "Community"]];
 function render() {
-  const screens = { intro: renderIntro, goal: renderGoal, home: renderHome, discover: renderDiscover, community: renderCommunity };
+  const screens = { intro: renderIntro, goal: renderGoal, update: renderUpdate, home: renderHome, discover: renderDiscover, community: renderCommunity };
   $("#screen").hidden = S.tab === "map";
   $("#mapwrap").hidden = S.tab !== "map";
   if (S.tab === "map") showMap(); else $("#screen").innerHTML = screens[S.tab]();
+  if (S.tab === "update") bindUpdateForm();
   $("#tabs").hidden = S.tab === "intro" || S.tab === "goal";
   $("#tabs").innerHTML = TABS.map(([id, ic, label]) =>
     `<button data-action="tab" data-id="${id}" ${id === S.tab ? 'aria-current="page"' : ""}><span>${icon(ic)}</span>${label}</button>`).join("");
@@ -892,6 +1009,12 @@ document.addEventListener("click", (e) => {
       goTab("home");
       break;
     case "editgoals": goTab("goal"); break;
+    case "updatehere": S.updatePlace = id; closeSheet(); goTab("update"); break;
+    case "reward": {
+      const r = D.rewards[id];
+      toast(S.points >= r.points ? `Reward claimed: ${r.name}. Show this at the counter.` : `${r.points - S.points} more points to unlock ${r.name}.`);
+      break;
+    }
     case "theme":
       document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
       setThemeButton();

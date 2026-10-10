@@ -126,6 +126,27 @@ window.DATA = {
     { name: "Sundance Deli",          type: "Food",        lat: 40.3930, lng: -111.5870, note: "Sandwiches at the base of the lifts", deal: "Free cocoa with a sandwich" },
   ],
 
+  // ---- Update tab: share conditions, earn points. ----
+  startingPoints: 75,   // a full first update (25 pts) unlocks the first reward
+  // How many points each part of an update earns.
+  pointsFor: { busyness: 10, conditions: 5, note: 10 },
+  // Rewards unlock at these point totals. Partner names are made up for the demo.
+  rewards: [
+    { points: 100, name: "Free cocoa at Sundance Deli" },
+    { points: 250, name: "20% off at Summit Gear Rentals" },
+    { points: 500, name: "Free day pass at a partner gym" },
+  ],
+  // Quick tags people can tap to describe conditions.
+  conditionTags: ["Trail dry", "Muddy", "Icy", "Fresh snow", "Great weather", "Windy",
+                  "Parking full", "Easy parking", "Long lines", "No wait"],
+  // Recent updates from other people. place = a place id. busy = quiet, moderate, or busy.
+  updates: [
+    { who: "Maya",   place: "ymountain",  busy: "quiet",    tags: ["Trail dry", "Easy parking"], note: "Lot has plenty of space", ago: "8 min ago" },
+    { who: "Tyler",  place: "quarry",     busy: "moderate", tags: ["No wait"],                    note: "Auto belays are open",    ago: "22 min ago" },
+    { who: "Kenzie", place: "sundance",   busy: "busy",     tags: ["Fresh snow", "Long lines"],   note: "",                        ago: "35 min ago" },
+    { who: "Sam",    place: "kiwanis",    busy: "quiet",    tags: ["Great weather"],              note: "One court open",          ago: "1 hr ago" },
+  ],
+
   // ---- Community groups. place = a place id above. ----
   // chat = sample messages shown when you open the group's chat.
   groups: [
