@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Activitree</title>
-<script src="data.js"></script>
+<!-- Load data.js fresh every time so edits show up right away (no stale cache). -->
+<script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
 <style>
   /* ---------- Colors: change --accent to rebrand ---------- */
   :root {
