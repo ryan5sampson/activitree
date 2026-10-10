@@ -22,11 +22,12 @@ window.DATA = {
     { id: "water",  name: "Water & lakes",           icon: "sailboat",            color: "#357690" },
     { id: "parks",  name: "Amusement & trampoline",  icon: "ferris-wheel",        color: "#98577f" },
     { id: "arcade", name: "Laser tag & arcades",     icon: "gamepad-2",           color: "#6656a0" },
-    { id: "bowl",   name: "Bowling & mini golf",     icon: "flag-triangle-right", color: "#a85754" },
+    { id: "bowl",   name: "Bowling & mini golf",     icon: "circle-dot",          color: "#a85754" },
     { id: "sports", name: "Pickup sports",           icon: "volleyball",          color: "#b77f34" },
     { id: "events", name: "Concerts & events",       icon: "music",               color: "#85506f" },
     { id: "museum", name: "Museums & zoos",          icon: "landmark",            color: "#8c7849" },
     { id: "gym",    name: "Gyms & fitness",          icon: "dumbbell",            color: "#56606b" },
+    { id: "golf",   name: "Golf",                    icon: "flag-triangle-right", color: "#3f8a5f" },
   ],
 
   // ---- Busyness profiles: 15 numbers = 8 AM through 10 PM (0-100). ----
@@ -49,6 +50,8 @@ window.DATA = {
     // Hidden gems stay quiet all day, so the demo always has quiet picks to show.
     gem:     { weekday: [10, 15, 15, 20, 20, 25, 25, 25, 25, 20, 15, 10,  5,  0,  0],
                weekend: [15, 20, 25, 25, 30, 30, 30, 30, 25, 20, 15, 10,  5,  0,  0] },
+    golf:    { weekday: [40, 45, 40, 35, 30, 30, 35, 45, 55, 60, 45,  0,  0,  0,  0],
+               weekend: [80, 90, 85, 75, 65, 55, 50, 45, 40, 35, 25,  0,  0,  0,  0] },
     rink:    { weekday: [ 0,  0, 10, 15, 25, 20, 20, 30, 45, 55, 70, 75, 50,  0,  0],
                weekend: [ 0, 30, 45, 60, 70, 80, 75, 65, 60, 55, 60, 55, 40,  0,  0] },
   },
@@ -97,6 +100,12 @@ window.DATA = {
       conditions: "Indoor",              price: "$15 day pass",      pitch: "Classic lifting gym close to campus" },
     { id: "provorec",  name: "Provo Recreation Center",  activity: "gym",    town: "Provo",        miles: 1,  profile: "gem",
       conditions: "Indoor",              price: "$8 day pass",       pitch: "Gym, pool, and indoor track, rarely crowded midday" },
+    { id: "eastbay",   name: "East Bay Golf Course",     activity: "golf",   town: "Provo",        miles: 3,  profile: "golf",
+      conditions: "Greens firm, 60°F",   price: "$22 for 9 holes",   pitch: "Affordable public course with lake views" },
+    { id: "tpoint",    name: "Thanksgiving Point Golf",  activity: "golf",   town: "Lehi",         miles: 18, profile: "golf",
+      conditions: "Fairways dry, 59°F",  price: "$45 for 9 holes",   pitch: "Championship course with mountain views" },
+    { id: "cascade",   name: "Cascade Golf Center",      activity: "golf",   town: "Orem",         miles: 6,  profile: "gem",
+      conditions: "Range open, light wind", price: "$10 bucket of balls", pitch: "Driving range and putting green, no tee time needed" },
     { id: "byumoa",    name: "BYU Museum of Art",        activity: "museum", town: "Provo",        miles: 1,  profile: "gem", featured: true,
       conditions: "Indoor",              price: "Free",              pitch: "Free art museum with a great café" },
     { id: "hogle",     name: "Hogle Zoo",                activity: "museum", town: "Salt Lake",    miles: 45, profile: "museum",
@@ -133,6 +142,9 @@ window.DATA = {
     { title: "Morning lift buddies", place: "golds", when: "Tue 6 AM", going: 3, spots: 2, chat: [
       { from: "Chris", text: "Push day. Meet by the squat racks" },
       { from: "Hannah",text: "I'll spot whoever needs it" } ] },
+    { title: "Twilight nine holes", place: "eastbay", when: "Thu 5 PM", going: 3, spots: 1, chat: [
+      { from: "Jake",  text: "Tee time is 5:10, all skill levels" },
+      { from: "Olivia",text: "I can bring extra clubs if anyone needs them" } ] },
     { title: "Dino museum trip", place: "ancientlife", when: "Sat 11 AM", going: 4, spots: 2, chat: [] },
   ],
 
