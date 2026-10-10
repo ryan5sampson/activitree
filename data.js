@@ -26,6 +26,7 @@ window.DATA = {
     { id: "sports", name: "Pickup sports",           icon: "volleyball",          color: "#b77f34" },
     { id: "events", name: "Concerts & events",       icon: "music",               color: "#85506f" },
     { id: "museum", name: "Museums & zoos",          icon: "landmark",            color: "#8c7849" },
+    { id: "gym",    name: "Gyms & fitness",          icon: "dumbbell",            color: "#56606b" },
   ],
 
   // ---- Busyness profiles: 15 numbers = 8 AM through 10 PM (0-100). ----
@@ -90,6 +91,12 @@ window.DATA = {
       conditions: "Indoor, doors 6 PM",  price: "$12 tickets",       pitch: "Tiny venue where local bands get their start" },
     { id: "ancientlife",name: "Museum of Ancient Life",  activity: "museum", town: "Lehi",         miles: 18, profile: "museum",
       conditions: "Indoor",              price: "$20 entry",         pitch: "Walk among 60 full-size dinosaur skeletons" },
+    { id: "vasa",      name: "VASA Fitness",             activity: "gym",    town: "Orem",         miles: 5,  profile: "gym",
+      conditions: "Indoor, open 24 hours", price: "$10/mo or $15 day pass", pitch: "Huge weight floor, pool, and classes" },
+    { id: "golds",     name: "Gold's Gym",               activity: "gym",    town: "Provo",        miles: 2,  profile: "gym",
+      conditions: "Indoor",              price: "$15 day pass",      pitch: "Classic lifting gym close to campus" },
+    { id: "provorec",  name: "Provo Recreation Center",  activity: "gym",    town: "Provo",        miles: 1,  profile: "gem",
+      conditions: "Indoor",              price: "$8 day pass",       pitch: "Gym, pool, and indoor track, rarely crowded midday" },
     { id: "byumoa",    name: "BYU Museum of Art",        activity: "museum", town: "Provo",        miles: 1,  profile: "gem", featured: true,
       conditions: "Indoor",              price: "Free",              pitch: "Free art museum with a great café" },
     { id: "hogle",     name: "Hogle Zoo",                activity: "museum", town: "Salt Lake",    miles: 45, profile: "museum",
@@ -123,6 +130,9 @@ window.DATA = {
       { from: "Rachel",text: "Doors at 6, the opener is really good" } ] },
     { title: "Easy river ride", place: "provoriver", when: "Sun 10 AM", going: 3, spots: 5, chat: [
       { from: "Nate",  text: "Super chill pace, about 10 miles round trip" } ] },
+    { title: "Morning lift buddies", place: "golds", when: "Tue 6 AM", going: 3, spots: 2, chat: [
+      { from: "Chris", text: "Push day. Meet by the squat racks" },
+      { from: "Hannah",text: "I'll spot whoever needs it" } ] },
     { title: "Dino museum trip", place: "ancientlife", when: "Sat 11 AM", going: 4, spots: 2, chat: [] },
   ],
 
