@@ -7,20 +7,41 @@
 <!-- Load data.js fresh every time so edits show up right away (no stale cache). -->
 <script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
 <style>
-  /* ---------- Colors: change --accent to rebrand ---------- */
+  /* ---------- Colors. Dark is the default; the header button switches to light. ---------- */
+  /* Change --accent (both themes) to rebrand. --on-accent is text on accent buttons. */
   :root {
-    --accent: #234e70;
-    --accent-soft: #e8eef3;
+    color-scheme: dark;
+    --accent: #8dbbe0;   --on-accent: #0f1a24;   --accent-soft: #1f2d39;
+    --ink: #ecebe6;
+    --muted: #9ba29d;
+    --line: #2d3330;
+    --paper: #121614;
+    --card: #1b201d;
+    --frame: #050706;
+    --quiet: #72c493;    --quiet-bg: #1c3326;
+    --moderate: #e2b55e; --moderate-bg: #392e17;
+    --busy: #ef7f77;     --busy-bg: #3d2220;
+    --closed: #8d948f;   --closed-bg: #272c29;
+    --tint: 65%;         /* how strongly activity colors show on icons and labels */
+    --hero-dim: .82;     /* darkens photo-style headers so they don't glare */
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --accent: #234e70;   --on-accent: #ffffff;   --accent-soft: #e8eef3;
     --ink: #1d2320;
     --muted: #6b716d;
     --line: #e7e3db;
     --paper: #f7f5f0;
     --card: #ffffff;
+    --frame: #e4e1da;
     --quiet: #2e7d4f;    --quiet-bg: #e5f1e9;
     --moderate: #946412; --moderate-bg: #f7eedb;
     --busy: #b03a3a;     --busy-bg: #f6e2e0;
     --closed: #8b908c;   --closed-bg: #eeece8;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --tint: 100%;
+    --hero-dim: 1;
     --shadow: 0 1px 2px rgba(29,35,32,.04), 0 4px 14px rgba(29,35,32,.05);
   }
   * { box-sizing: border-box; }
@@ -43,7 +64,7 @@
     height: 100dvh; overflow: hidden; background: var(--paper);
   }
   @media (min-width: 500px) {
-    body { background: #e4e1da; display: grid; place-items: center; }
+    body { background: var(--frame); display: grid; place-items: center; }
     #app { width: 390px; height: min(844px, calc(100vh - 40px));
            border-radius: 40px; box-shadow: 0 30px 80px rgba(29,35,32,.22), 0 0 0 10px #1d2320; }
   }
@@ -51,10 +72,12 @@
   /* ---------- Header ---------- */
   header { display: flex; align-items: center; gap: 8px; padding: 16px 20px 8px; }
   .logo { width: 30px; height: 30px; border-radius: 9px; flex: none; background: var(--accent);
-          color: #fff; display: grid; place-items: center; }
+          color: var(--on-accent); display: grid; place-items: center; }
   .brand { font-weight: 650; letter-spacing: -.01em; }
   .pill { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
           color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 3px 8px; }
+  .theme { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: none;
+           display: grid; place-items: center; color: var(--muted); flex: none; }
   .reset { margin-left: auto; background: none; border: 0; padding: 8px 0; color: var(--muted);
            font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 
@@ -67,7 +90,7 @@
 
   /* ---------- Buttons ---------- */
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-         min-height: 52px; border: 0; border-radius: 14px; background: var(--accent); color: #fff;
+         min-height: 52px; border: 0; border-radius: 14px; background: var(--accent); color: var(--on-accent);
          font-weight: 600; font-size: 16px; }
   .btn:disabled { background: var(--closed-bg); color: var(--closed); cursor: default; }
   .btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
@@ -75,7 +98,7 @@
 
   /* Tinted icon tile, colored per activity via --c. */
   .tile { width: 44px; height: 44px; border-radius: 12px; flex: none; display: grid; place-items: center;
-          color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); }
+          color: color-mix(in srgb, var(--c) var(--tint), var(--ink)); background: color-mix(in srgb, var(--c) 16%, var(--card)); }
   .tile .i { width: 22px; height: 22px; }
 
   /* ---------- Intro chips ---------- */
@@ -87,9 +110,9 @@
                  display: grid; place-items: center; border: 1.5px solid var(--line); color: transparent; }
   .chip .check .i { width: 14px; height: 14px; stroke-width: 2.5; }
   .chip[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .chip[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .stick { position: sticky; bottom: -28px; padding: 12px 0 28px; margin-bottom: -28px;
-           background: linear-gradient(rgba(247,245,240,0), var(--paper) 35%); }
+           background: linear-gradient(transparent, var(--paper) 35%); }
 
   /* ---------- Busyness badge: color is always paired with a text label ---------- */
   .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 650;
@@ -117,7 +140,7 @@
 
   /* Photo-style header: activity color gradient + mountain silhouettes + icon. */
   .hero { position: relative; overflow: hidden; display: grid; place-items: center; color: #fff;
-          background: linear-gradient(160deg, color-mix(in srgb, var(--c) 55%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 75%, #000)); }
+          background: linear-gradient(160deg, color-mix(in srgb, var(--c) 55%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 75%, #000)); filter: brightness(var(--hero-dim)); }
   .hero .ridge { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 60%; }
   .hero > .i { position: relative; width: 40px; height: 40px; stroke-width: 1.4; opacity: .95; }
 
@@ -143,10 +166,10 @@
   .rec .hero { flex: none; width: 96px; }
   .rec .hero > .i { width: 30px; height: 30px; }
   .rec .body { flex: 1; min-width: 0; padding-right: 54px; }
-  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--c); margin-bottom: 4px; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--c) var(--tint), var(--ink)); margin-bottom: 4px; }
   .pitch { margin: 8px 0 12px; font-size: 14px; line-height: 1.4; }
   .heart { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%;
-           border: 0; background: rgba(255,255,255,.94); color: var(--ink); display: grid; place-items: center;
+           border: 0; background: color-mix(in srgb, var(--card) 94%, transparent); color: var(--ink); display: grid; place-items: center;
            box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .heart[aria-pressed="true"] { color: var(--busy); }
   .heart[aria-pressed="true"] .i { fill: currentColor; }
@@ -157,7 +180,7 @@
   .fchip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 14px;
            border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-weight: 550; font-size: 14px; }
   .fchip .i { width: 16px; height: 16px; }
-  .fchip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .fchip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
   .join { min-width: 88px; }
   .join.joined { background: var(--quiet-bg); color: var(--quiet); }
   .facts .grow { flex: 1; }
@@ -174,16 +197,16 @@
   .bubble { padding: 9px 13px; border-radius: 18px 18px 18px 6px; background: var(--paper); font-size: 15px; line-height: 1.35; }
   .bubble .who { display: block; font-size: 12px; font-weight: 650; color: var(--muted); margin-bottom: 2px; }
   .msg.me { align-self: flex-end; }
-  .msg.me .bubble { background: var(--accent); color: #fff; border-radius: 18px 18px 6px 18px; }
+  .msg.me .bubble { background: var(--accent); color: var(--on-accent); border-radius: 18px 18px 6px 18px; }
   .empty { margin: auto; text-align: center; color: var(--muted); font-size: 14px; }
   .composer { display: flex; gap: 8px; padding: 12px 0 calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
   .composer input { flex: 1; border-radius: 99px; padding: 0 16px; }
   .composer input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   .composer .send { width: 48px; height: 48px; border-radius: 50%; border: 0; flex: none; background: var(--accent);
-                    color: #fff; display: grid; place-items: center; }
+                    color: var(--on-accent); display: grid; place-items: center; }
 
   /* ---------- Bottom tab bar ---------- */
-  nav { display: flex; border-top: 1px solid var(--line); background: rgba(255,255,255,.92);
+  nav { display: flex; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--card) 92%, transparent);
         backdrop-filter: blur(10px); padding: 6px 8px calc(8px + env(safe-area-inset-bottom)); }
   nav[hidden] { display: none; }
   nav button { flex: 1; border: 0; background: none; padding: 4px 0; color: var(--muted);
@@ -200,12 +223,12 @@
   .sheet .hero { height: 130px; margin: -10px -20px 18px; }
   .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 10px; }
   .close { position: absolute; top: 16px; right: 16px; z-index: 1; border: 0; width: 36px; height: 36px; border-radius: 50%;
-           background: rgba(255,255,255,.94); display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+           background: color-mix(in srgb, var(--card) 94%, transparent); display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .sheet-title { font-family: var(--serif); font-weight: 600; font-size: 26px; margin: 0; text-transform: none;
                  letter-spacing: -.01em; color: var(--ink); }
   .chart { display: flex; align-items: flex-end; gap: 4px; height: 110px; margin-top: 22px; }
   .bar { flex: 1; border-radius: 4px 4px 0 0; min-height: 3px; position: relative; opacity: .85; }
-  .bar.now { opacity: 1; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--ink); }
+  .bar.now { opacity: 1; box-shadow: 0 0 0 2px var(--card), 0 0 0 3.5px var(--ink); }
   .bar.now::after { content: "Now"; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
                     font-size: 11px; font-weight: 700; }
   .axis { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 6px; }
@@ -220,7 +243,7 @@
 
   /* ---------- Toast ---------- */
   #toast { position: absolute; left: 20px; right: 20px; bottom: 96px; z-index: 20; display: flex; align-items: center;
-           justify-content: center; gap: 8px; background: var(--ink); color: #fff; border-radius: 14px; padding: 13px 16px;
+           justify-content: center; gap: 8px; background: var(--ink); color: var(--paper); border-radius: 14px; padding: 13px 16px;
            font-weight: 550; font-size: 14px; opacity: 0; transform: translateY(10px); transition: .2s; pointer-events: none; }
   #toast.show { opacity: 1; transform: none; }
 </style>
@@ -232,6 +255,7 @@
     <span class="brand" id="brand"></span>
     <span class="pill">Sample data</span>
     <button class="reset" data-action="reset">Reset demo</button>
+    <button class="theme" id="theme" data-action="theme"></button>
   </header>
   <main id="screen"></main>
   <nav id="tabs" hidden></nav>
@@ -255,6 +279,8 @@ const place = (id) => D.places.find((p) => p.id === id);
 // Line icons from Lucide (https://lucide.dev, ISC license), copied in so the
 // demo works offline. To add one, copy the inner SVG of any Lucide icon here.
 const ICONS = {
+  "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />",
+  "moon": "<path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\" />",
   "dumbbell": "<path d=\"M14.4 14.4 9.6 9.6\" /> <path d=\"M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z\" /> <path d=\"m21.5 21.5-1.4-1.4\" /> <path d=\"M3.9 3.9 2.5 2.5\" /> <path d=\"M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z\" />",
   "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />",
   "send": "<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\" /> <path d=\"m21.854 2.147-10.94 10.939\" />",
@@ -617,6 +643,10 @@ document.addEventListener("click", (e) => {
   switch (el.dataset.action) {
     case "interest": S.interests.has(id) ? S.interests.delete(id) : S.interests.add(id); render(); break;
     case "start": goTab("home"); break;
+    case "theme":
+      document.documentElement.dataset.theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      setThemeButton();
+      break;
     case "tab": goTab(id); break;
     case "reset": closeSheet(); S = freshState(); render(); toast("Demo reset. Ready for the next person."); break;
     case "detail": openDetail(id); break;
@@ -650,9 +680,17 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// ---------- Theme: dark by default, header button toggles light ----------
+function setThemeButton() {
+  const light = document.documentElement.dataset.theme === "light";
+  $("#theme").innerHTML = icon(light ? "moon" : "sun");
+  $("#theme").setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+}
+
 // ---------- Start ----------
 $("#logo").innerHTML = icon("trees");
 $("#brand").textContent = D.appName;
+setThemeButton();
 S = freshState();
 render();
 </script>
