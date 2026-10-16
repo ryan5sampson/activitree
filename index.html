@@ -264,15 +264,25 @@
   .composer .send { width: 48px; height: 48px; border-radius: 50%; border: 0; flex: none; background: var(--accent);
                     color: var(--on-accent); display: grid; place-items: center; }
 
+  /* ---------- Busy now board (top of Home) ---------- */
+  .board { padding: 2px 14px; }
+  .brow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 0; border: 0; text-align: left;
+          border-bottom: 1px solid var(--line); background: none; }
+  .brow:last-child { border-bottom: 0; }
+  .brow .grow { flex: 1; min-width: 0; }
+  .brow .tile { width: 38px; height: 38px; border-radius: 11px; }
+  .brow .tile .i { width: 20px; height: 20px; }
+  .brow .name { display: flex; align-items: center; gap: 5px; font-weight: 650; font-size: 15px; }
+  .brow .name .i { width: 14px; height: 14px; color: var(--star); fill: currentColor; }
+  .spark { display: flex; align-items: flex-end; gap: 2px; height: 18px; margin-top: 6px; }
+  .spark span { width: 5px; min-height: 2px; border-radius: 1.5px; opacity: .4; }
+  .spark span.now { opacity: 1; }
+
   /* ---------- Favorites (star) ---------- */
   .star { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); flex: none;
           background: var(--card); color: var(--muted); display: grid; place-items: center; }
   .star[aria-pressed="true"] { color: var(--star); border-color: color-mix(in srgb, var(--star) 45%, var(--line)); }
   .star[aria-pressed="true"] .i { fill: currentColor; }
-  .pcard { position: relative; }
-  .pcard .open { color: inherit; }
-  .pcard > .star { position: absolute; right: 14px; bottom: 14px; }
-  .pcard.fav { border-color: color-mix(in srgb, var(--star) 40%, var(--line)); }
   .sheet > .star { position: absolute; top: 16px; right: 60px; z-index: 1; border: 0;
                    background: color-mix(in srgb, var(--card) 94%, transparent); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .pin.fav { width: 44px; height: 44px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--star) 35%, transparent), 0 2px 10px rgba(0,0,0,.4); }
@@ -601,15 +611,14 @@ const groupsAt = (p) => S.groups.filter((g) => g.place === p.id).length;
 function renderHome() {
   const g = S.goals, social = g.has("social"), fresh = g.has("new"), deals = g.has("deals");
   const dealPlaces = D.places.filter((p) => p.deal).sort(byDeal);
-  // Quietest first, unless you only care about groups: then spots with groups come first.
-  const picks = D.places.filter((p) => S.interests.has(p.activity))
-    .sort((a, b) => (social && !g.has("quiet") ? groupsAt(b) - groupsAt(a) : 0) || byQuiet(a, b));
+  const picks = D.places.filter((p) => S.interests.has(p.activity)).sort(byQuiet);
   const newIdeas = D.places.filter((p) => !S.interests.has(p.activity)).sort(byQuiet).slice(0, 6);
   const mine = S.groups.filter((g) => S.interests.has(place(g.place).activity));
   const quiet = picks.filter((p) => level(busyNow(p)).cls === "quiet").length;
   const greet = HOUR < 12 ? "Good morning" : HOUR < 18 ? "Good afternoon" : "Good evening";
   const saved = S.saved.map(place);
-  const favs = S.favs.map(place);
+  // Busy now board: favorites first, then your spots, quietest first.
+  const board = [...S.favs.map(place), ...picks.filter((p) => !S.favs.includes(p.id))];
   return `
     <h1>${greet}</h1>
     <p class="sub">${[
@@ -620,6 +629,8 @@ function renderHome() {
     ].filter(Boolean).join(" · ")}</p>
     <button class="mode" data-action="editgoals" aria-label="Edit what you're after: ${[...g].map((id) => GOALS[id].title).join(", ")}">
       ${[...g].map((id) => icon(GOALS[id].icon)).join("")}${icon("pencil")}</button>
+    <h2>Busy now</h2>
+    <div class="card board">${board.map(boardRow).join("")}</div>
     ${social ? `
       <h2>Groups</h2>
       ${(mine.length ? mine : S.groups).slice(0, 3).map(groupCard).join("")}
@@ -646,36 +657,23 @@ function renderHome() {
             <div class="body"><div class="title">${esc(p.name)}</div>${badge(busyNow(p))}</div>
           </button>`).join("")}
       </div>` : ""}
-    ${favs.length ? `<h2>Favorites</h2>${favs.map(placeCard).join("")}` : ""}
-    <h2>Top picks</h2>
-    ${picks.filter((p) => !S.favs.includes(p.id)).map(placeCard).join("")}`;
+`;
 }
 
 // Favorite star button for a place.
 const starBtn = (p) => { const on = S.favs.includes(p.id); return `<button class="star" data-action="fav" data-id="${p.id}"
   aria-pressed="${on}" aria-label="${on ? "Remove" : "Add"} ${esc(p.name)} ${on ? "from" : "to"} favorites">${icon("star")}</button>`; };
 
-// Home card: tap for details, tap the star to favorite.
-const placeCard = (p) => `
-  <div class="card pcard ${S.favs.includes(p.id) ? "fav" : ""}">
-    <button class="open" data-action="detail" data-id="${p.id}">
-      <div class="row">
-        ${tile(p)}
-        <div class="grow">
-          <div class="title">${esc(p.name)}</div>
-          <div class="meta">${act(p.activity).name} · ${p.miles} mi</div>
-        </div>
-        ${badge(busyNow(p))}
-      </div>
-      <div class="facts">
-        <div>${icon("cloud-sun")} ${esc(p.conditions)} · ${esc(p.price)}</div>
-        <div class="best">${icon("clock")} Best ${bestTime(p)}</div>
-        ${dealLine(p)}
-        ${S.goals.has("social") && groupsAt(p) ? `<div>${icon("users")} ${groupsAt(p)} group${groupsAt(p) === 1 ? "" : "s"}</div>` : ""}
-      </div>
-    </button>
-    ${starBtn(p)}
-  </div>`;
+// One Busy now row: name, today's busyness at a glance (now highlighted), and the level badge.
+const boardRow = (p) => `
+  <button class="brow" data-action="detail" data-id="${p.id}">
+    ${tile(p)}
+    <span class="grow">
+      <span class="name">${S.favs.includes(p.id) ? icon("star") : ""}${esc(p.name)}</span>
+      <span class="spark" aria-hidden="true">${series(p).map((v, i) => `<span class="${level(v).bar} ${i === NOW ? "now" : ""}" style="height:${Math.max(v, 8)}%"></span>`).join("")}</span>
+    </span>
+    ${badge(busyNow(p))}
+  </button>`;
 
 // One Discover card. Tap the card for details; tap the heart to save.
 function ideaCard(p, cls) {
